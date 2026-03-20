@@ -3,573 +3,678 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ResQ | Smart Ambulance Admin Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>ResQ | AI-Powered Emergency Response Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --primary: #ff4d4d;
-            --primary-hover: #e63939;
-            --bg-dark: #0f172a;
-            --sidebar-bg: rgba(30, 41, 59, 0.7);
-            --card-bg: rgba(255, 255, 255, 0.05);
+            --primary: #ef4444;
+            --secondary: #0f172a;
+            --accent: #3b82f6;
+            --glass: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --text-main: #f8fafc;
-            --text-dim: #94a3b8;
-            --accent-green: #10b981;
-            --accent-blue: #3b82f6;
-            --accent-yellow: #f59e0b;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-
         body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
             background: radial-gradient(circle at top right, #1e293b, #0f172a);
-            color: var(--text-main);
+            color: #f8fafc;
             min-height: 100vh;
             overflow-x: hidden;
         }
 
-        /* --- LOGIN PAGE --- */
-        #login-page {
-            position: fixed;
-            inset: 0;
-            z-index: 1000;
-            background: radial-gradient(circle at center, #1e1b4b, #0f172a);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.8s cubic-bezier(0.87, 0, 0.13, 1);
-        }
-
-        .login-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            padding: 3rem;
-            border-radius: 24px;
-            border: 1px solid var(--glass-border);
-            width: 100%;
-            max-width: 450px;
-            text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        .logo-box { margin-bottom: 2rem; }
-        .logo-box i { font-size: 3rem; color: var(--primary); margin-bottom: 1rem; }
-        .logo-box h1 { font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
-
-        .input-group { margin-bottom: 1.5rem; text-align: left; }
-        .input-group label { display: block; margin-bottom: 0.5rem; color: var(--text-dim); font-size: 0.9rem; }
-        .input-group input {
-            width: 100%;
-            padding: 12px 16px;
-            background: rgba(0,0,0,0.2);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            color: white;
-            outline: none;
-            transition: 0.3s;
-        }
-        .input-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(255, 77, 77, 0.1); }
-
-        .btn-login {
-            width: 100%;
-            padding: 14px;
-            background: var(--primary);
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-top: 1rem;
-        }
-        .btn-login:hover { background: var(--primary-hover); transform: translateY(-2px); }
-
-        .demo-box {
-            margin-top: 2rem;
-            padding: 1rem;
-            border-radius: 12px;
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px dashed var(--accent-blue);
-            display: none;
-        }
-
-        /* --- DASHBOARD LAYOUT --- */
-        #main-dashboard {
-            display: grid;
-            grid-template-columns: 260px 1fr;
-            min-height: 100vh;
-            visibility: hidden;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            background: var(--sidebar-bg);
-            backdrop-filter: blur(15px);
-            border-right: 1px solid var(--glass-border);
-            padding: 2rem 1.5rem;
-            display: flex;
-            flex-direction: column;
-            position: sticky;
-            top: 0;
-            height: 100vh;
-        }
-
-        .nav-item {
-            padding: 12px 16px;
-            margin-bottom: 8px;
-            border-radius: 12px;
-            color: var(--text-dim);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: 0.3s;
-            cursor: pointer;
-        }
-        .nav-item:hover, .nav-item.active {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-        .nav-item.active i { color: var(--primary); }
-
-        /* Content Area */
-        .content { padding: 2rem; overflow-y: auto; }
-
-        /* Glass Cards */
         .glass-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
+            background: var(--glass);
+            backdrop-filter: blur(12px);
             border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 1.5rem;
-            transition: 0.3s;
+            border-radius: 24px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .glass-card:hover { border-color: rgba(255, 255, 255, 0.2); }
 
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+        .glass-card:hover {
+            border-color: rgba(239, 68, 68, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
-        .stat-val { font-size: 2rem; font-weight: 700; margin-top: 0.5rem; }
-        .stat-label { color: var(--text-dim); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Notifications & Alerts */
-        .alert-banner {
-            background: linear-gradient(90deg, #ff4d4d, #f59e0b);
-            padding: 1rem 2rem;
-            border-radius: 15px;
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            animation: pulse 2s infinite;
+        .sidebar-item {
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .sidebar-item.active {
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0) 100%);
+            color: var(--primary);
+            border-left: 4px solid var(--primary);
+        }
+
+        .animate-pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
 
         @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.4); }
-            70% { box-shadow: 0 0 0 15px rgba(255, 77, 77, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
         }
 
-        /* Section Visibility */
-        .page-section { display: none; animation: fadeIn 0.5s ease-out; }
-        .page-section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Incoming Request Panel */
-        .request-card {
-            border-left: 4px solid var(--primary);
-            margin-bottom: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .timer-bar {
-            height: 4px;
-            background: var(--primary);
-            width: 100%;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            transition: width 1s linear;
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
         }
 
-        /* Tables & Lists */
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th { text-align: left; color: var(--text-dim); padding: 12px; font-weight: 500; border-bottom: 1px solid var(--glass-border); }
-        td { padding: 16px 12px; border-bottom: 1px solid var(--glass-border); }
-        .status-pill { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
-        .pill-available { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
-        .pill-busy { background: rgba(245, 158, 11, 0.2); color: var(--accent-yellow); }
-
-        /* Map Simulation */
-        .map-container {
-            height: 400px;
-            background: url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/0,0,1/800x400?access_token=pk.eyJ1IjoiZGVtbyIsImEiOiJjbDF2YnIyeG0wZzFyM2NwYmR6Z3R6Z3R6In0') center/cover;
-            border-radius: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-        .ambulance-marker {
-            position: absolute;
-            color: var(--primary);
-            font-size: 1.5rem;
-            filter: drop-shadow(0 0 10px var(--primary));
-            transition: all 2s linear;
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
         }
 
-        /* Buttons */
-        .btn-action { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
-        .btn-accept { background: var(--accent-green); color: white; margin-right: 8px; }
-        .btn-reject { background: rgba(255,255,255,0.1); color: white; }
-
-        /* Loading Overlay */
-        #loader {
-            position: fixed;
-            inset: 0;
-            background: var(--bg-dark);
-            z-index: 2000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid var(--glass-border);
-            border-top: 3px solid var(--primary);
+        .status-dot {
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 6px;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Responsive */
-        @media (max-width: 992px) {
-            #main-dashboard { grid-template-columns: 80px 1fr; }
-            .sidebar span { display: none; }
-            .nav-item { justify-content: center; }
+        /* Arrival Alert Animation */
+        .alert-flash {
+            animation: flash-red 0.8s infinite alternate;
         }
+
+        @keyframes flash-red {
+            from { background: rgba(239, 68, 68, 0.1); box-shadow: 0 0 0px var(--primary); }
+            to { background: rgba(239, 68, 68, 0.4); box-shadow: 0 0 20px var(--primary); }
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; }
+
+        .hide-section { display: none; }
     </style>
 </head>
-<body>
+<body class="antialiased">
 
-    <div id="loader"><div class="spinner"></div></div>
-
-    <section id="login-page">
-        <div class="login-card">
-            <div class="logo-box">
-                <i class="fa-solid fa-truck-medical"></i>
-                <h1>ResQ Admin</h1>
-                <p style="color: var(--text-dim)">Empowering Emergency Logistics</p>
+    <div id="login-screen" class="fixed inset-0 z-[9999] flex items-center justify-center bg-[#0f172a] transition-all duration-700">
+        <div class="glass-card p-10 w-full max-w-md text-center">
+            <div class="mb-8">
+                <div class="w-20 h-20 bg-red-500 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-2xl shadow-red-500/20">
+                    <i class="fa-solid fa-truck-medical text-4xl text-white"></i>
+                </div>
+                <h1 class="text-3xl font-extrabold tracking-tight">ResQ <span class="text-red-500">Admin</span></h1>
+                <p class="text-slate-400 mt-2">Enterprise Emergency Logistics</p>
             </div>
-            <form id="login-form">
-                <div class="input-group">
-                    <label>Email Address</label>
-                    <input type="email" id="email" placeholder="name@hospital.com" required>
+
+            <form id="login-form" class="space-y-4">
+                <div class="text-left">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Hospital Email</label>
+                    <input type="email" id="email" required class="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 mt-1 focus:outline-none focus:border-red-500 transition-all" placeholder="hospital@resq.com">
                 </div>
-                <div class="input-group">
-                    <label>Password</label>
-                    <input type="password" id="password" placeholder="••••••••" required>
+                <div class="text-left">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Secure Password</label>
+                    <input type="password" id="password" required class="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 mt-1 focus:outline-none focus:border-red-500 transition-all" placeholder="••••••••">
                 </div>
-                <button type="submit" class="btn-login">Secure Login</button>
+                <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-red-500/30 transition-all transform active:scale-95">
+                    Authorize Access
+                </button>
             </form>
-            <button onclick="showDemo()" style="background:transparent; border:none; color:var(--accent-blue); cursor:pointer; margin-top:1.5rem; font-size:0.85rem;">Show Demo Credentials</button>
-            <div id="demo-box" class="demo-box">
-                <p style="font-size:0.8rem">Email: <b>admin@resq.com</b><br>Password: <b>123456</b></p>
+
+            <button onclick="showDemoCredentials()" class="mt-6 text-sm text-slate-500 hover:text-white transition-colors underline underline-offset-4">
+                Show Demo Credentials
+            </button>
+            
+            <div id="demo-creds" class="hidden mt-4 p-4 bg-slate-800/50 rounded-xl text-xs text-left border border-slate-700 animate-fade-in">
+                <p>Email: <span class="text-red-400">hospital@resq.com</span></p>
+                <p>Password: <span class="text-red-400">123456</span></p>
             </div>
         </div>
-    </section>
+    </div>
 
-    <main id="main-dashboard">
-        <aside class="sidebar">
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:3rem; padding-left:10px;">
-                <i class="fa-solid fa-square-h" style="font-size: 2rem; color: var(--primary);"></i>
-                <span style="font-weight:700; font-size:1.2rem;">ResQ Portal</span>
+    <div id="dashboard-ui" class="opacity-0 transition-opacity duration-1000 flex min-h-screen">
+        
+        <aside class="w-72 border-r border-slate-800 bg-[#0f172a]/80 backdrop-blur-xl sticky top-0 h-screen flex flex-col z-50">
+            <div class="p-8">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-truck-medical text-2xl text-red-500"></i>
+                    <span class="text-2xl font-black tracking-tighter italic">ResQ</span>
+                </div>
             </div>
-            <nav style="flex:1">
-                <a class="nav-item active" onclick="showPage('dashboard', this)"><i class="fa-solid fa-house"></i><span>Dashboard</span></a>
-                <a class="nav-item" onclick="showPage('ambulances', this)"><i class="fa-solid fa-ambulance"></i><span>Ambulances</span></a>
-                <a class="nav-item" onclick="showPage('requests', this)"><i class="fa-solid fa-bell"></i><span>Incoming</span></a>
-                <a class="nav-item" onclick="showPage('tracking', this)"><i class="fa-solid fa-location-crosshairs"></i><span>Live Map</span></a>
-                <a class="nav-item" onclick="showPage('drivers', this)"><i class="fa-solid fa-user-doctor"></i><span>Drivers</span></a>
-                <a class="nav-item" onclick="showPage('analytics', this)"><i class="fa-solid fa-chart-line"></i><span>Analytics</span></a>
+
+            <nav class="flex-1 px-4 space-y-1 overflow-y-auto">
+                <a href="#" onclick="switchTab('home')" class="sidebar-item active flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium">
+                    <i class="fa-solid fa-grid-2 text-lg w-6"></i> Dashboard
+                </a>
+                <a href="#" onclick="switchTab('ambulances')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-ambulance text-lg w-6"></i> Ambulances
+                </a>
+                <a href="#" onclick="switchTab('requests')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-bell-exclamation text-lg w-6"></i> Requests <span class="ml-auto bg-red-500 text-[10px] px-1.5 py-0.5 rounded-full text-white">2</span>
+                </a>
+                <a href="#" onclick="switchTab('tracking')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-map-location-dot text-lg w-6"></i> Live Tracking
+                </a>
+                <a href="#" onclick="switchTab('drivers')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-id-card text-lg w-6"></i> Drivers
+                </a>
+                <a href="#" onclick="switchTab('patients')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-user-injured text-lg w-6"></i> Patients
+                </a>
+                <div class="pt-4 pb-2 px-4 text-[10px] font-bold uppercase tracking-widest text-slate-600">Finance</div>
+                <a href="#" onclick="switchTab('settlements')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-wallet text-lg w-6"></i> Settlements
+                </a>
+                <a href="#" onclick="switchTab('analytics')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-chart-pie text-lg w-6"></i> Analytics
+                </a>
+                <a href="#" onclick="switchTab('reports')" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-file-invoice text-lg w-6"></i> Reports
+                </a>
             </nav>
-            <div class="nav-item" style="margin-top:auto" onclick="location.reload()">
-                <i class="fa-solid fa-right-from-bracket"></i><span>Logout</span>
+
+            <div class="p-6 border-t border-slate-800">
+                <button onclick="location.reload()" class="flex items-center gap-3 text-slate-500 hover:text-red-400 transition-colors">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span class="text-sm font-bold">Secure Logout</span>
+                </button>
             </div>
         </aside>
 
-        <section class="content">
-            <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+        <main class="flex-1 p-8 overflow-y-auto">
+            
+            <header class="flex justify-between items-center mb-10">
                 <div>
-                    <h2 id="page-title">General Overview</h2>
-                    <p style="color:var(--text-dim)">Welcome back, Apollo Hospitals Admin</p>
+                    <h2 class="text-sm font-bold text-red-500 uppercase tracking-[0.2em]">Apollo Hospitals, Hyderabad</h2>
+                    <h1 id="view-title" class="text-3xl font-extrabold mt-1">Command Center</h1>
                 </div>
-                <div style="display:flex; gap:1.5rem; align-items:center;">
-                    <div style="position:relative; cursor:pointer;">
-                        <i class="fa-regular fa-bell" style="font-size:1.3rem;"></i>
-                        <span style="position:absolute; top:-5px; right:-5px; background:var(--primary); width:10px; height:10px; border-radius:50%;"></span>
+                <div class="flex items-center gap-6">
+                    <div class="flex -space-x-3">
+                        <img src="https://ui-avatars.com/api/?name=Dr+Arjun&background=ef4444&color=fff" class="w-10 h-10 rounded-full border-4 border-[#0f172a]" alt="">
+                        <div class="w-10 h-10 rounded-full border-4 border-[#0f172a] bg-slate-800 flex items-center justify-center text-xs font-bold text-white">+3</div>
                     </div>
-                    <div style="width:40px; height:40px; border-radius:12px; background:linear-gradient(45deg, var(--primary), var(--accent-yellow));"></div>
+                    <button class="relative glass-card p-3 rounded-xl">
+                        <i class="fa-solid fa-bell text-slate-400"></i>
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-[#0f172a]"></span>
+                    </button>
+                    <div class="h-10 w-px bg-slate-800"></div>
+                    <div class="text-right">
+                        <p class="text-sm font-bold">Admin Apollo</p>
+                        <p class="text-xs text-slate-500">Super User</p>
+                    </div>
                 </div>
             </header>
 
-            <div id="dashboard" class="page-section active">
-                <div class="alert-banner">
-                    <div style="display:flex; align-items:center; gap:15px;">
-                        <i class="fa-solid fa-bolt-lightning"></i>
-                        <span><strong>AI Suggestion:</strong> Dispatch Ambulance A-04 for the current trauma request at Jubilee Hills. (ETA: 4m)</span>
+            <div id="home-view" class="tab-view space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="glass-card p-6 border-l-4 border-l-red-500">
+                        <div class="flex justify-between items-start">
+                            <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Rides Today</p>
+                            <i class="fa-solid fa-route text-red-500/20 text-2xl"></i>
+                        </div>
+                        <h3 class="text-4xl font-black mt-2 tracking-tight" id="stat-rides">1,284</h3>
+                        <p class="text-emerald-500 text-xs mt-2 font-bold"><i class="fa-solid fa-caret-up"></i> 12.5% increase</p>
                     </div>
-                    <button class="btn-action btn-accept" style="background:white; color:black;">Auto-Dispatch</button>
+                    <div class="glass-card p-6 border-l-4 border-l-blue-500">
+                        <div class="flex justify-between items-start">
+                            <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">Active Fleet</p>
+                            <i class="fa-solid fa-truck-fast text-blue-500/20 text-2xl"></i>
+                        </div>
+                        <h3 class="text-4xl font-black mt-2 tracking-tight" id="stat-fleet">24/30</h3>
+                        <p class="text-slate-500 text-xs mt-2">6 vehicles in maintenance</p>
+                    </div>
+                    <div class="glass-card p-6 border-l-4 border-l-amber-500">
+                        <div class="flex justify-between items-start">
+                            <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">Avg Response Time</p>
+                            <i class="fa-solid fa-clock text-amber-500/20 text-2xl"></i>
+                        </div>
+                        <h3 class="text-4xl font-black mt-2 tracking-tight">4.8 <span class="text-xl font-normal text-slate-500">min</span></h3>
+                        <p class="text-emerald-500 text-xs mt-2 font-bold"><i class="fa-solid fa-caret-down"></i> 1.2m vs last week</p>
+                    </div>
+                    <div class="glass-card p-6 border-l-4 border-l-emerald-500">
+                        <div class="flex justify-between items-start">
+                            <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">Revenue (Today)</p>
+                            <i class="fa-solid fa-indian-rupee-sign text-emerald-500/20 text-2xl"></i>
+                        </div>
+                        <h3 class="text-4xl font-black mt-2 tracking-tight">₹ 84.2k</h3>
+                        <p class="text-emerald-500 text-xs mt-2 font-bold"><i class="fa-solid fa-caret-up"></i> Target Reached</p>
+                    </div>
                 </div>
 
-                <div class="stats-grid">
-                    <div class="glass-card">
-                        <div class="stat-label">Total Rides (Today)</div>
-                        <div class="stat-val">42</div>
-                        <div style="color:var(--accent-green); font-size:0.8rem; margin-top:5px;"><i class="fa-solid fa-caret-up"></i> +12% vs yesterday</div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-bold">Active Emergency Requests</h3>
+                            <span class="px-3 py-1 bg-red-500/10 text-red-500 text-xs font-bold rounded-full border border-red-500/20 animate-pulse">LIVE FEED</span>
+                        </div>
+                        
+                        <div id="request-list" class="space-y-4">
+                            </div>
                     </div>
-                    <div class="glass-card">
-                        <div class="stat-label">Avg Response Time</div>
-                        <div class="stat-val">6.4 <small style="font-size:0.9rem; font-weight:400">min</small></div>
-                        <div style="color:var(--accent-green); font-size:0.8rem; margin-top:5px;"><i class="fa-solid fa-caret-down"></i> -1.2m optimization</div>
-                    </div>
-                    <div class="glass-card">
-                        <div class="stat-label">Active Ambulances</div>
-                        <div class="stat-val">18 / 25</div>
-                        <div class="stat-label" style="font-size:0.7rem; margin-top:5px;">7 standby</div>
-                    </div>
-                    <div class="glass-card">
-                        <div class="stat-label">Customer Rating</div>
-                        <div class="stat-val">4.9 / 5</div>
-                        <div style="color:var(--accent-yellow)"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-                    </div>
-                </div>
 
-                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:1.5rem;">
-                    <div class="glass-card">
-                        <h3>Booking Trends</h3>
-                        <canvas id="mainChart" style="margin-top:1.5rem;"></canvas>
-                    </div>
-                    <div class="glass-card">
-                        <h3>Quick Pricing</h3>
-                        <div style="margin-top:1.5rem;">
-                            <div class="input-group">
-                                <label>Base Fare (₹)</label>
-                                <input type="number" value="500">
+                    <div class="space-y-6">
+                        <div class="glass-card p-6">
+                            <h3 class="font-bold mb-4">Response Performance</h3>
+                            <canvas id="responseChart" height="200"></canvas>
+                        </div>
+                        <div class="glass-card p-6">
+                            <h3 class="font-bold mb-4">Fleet Distribution</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-400">Available (Green Zone)</span>
+                                        <span class="text-emerald-500 font-bold">80%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                        <div class="bg-emerald-500 h-full" style="width: 80%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-400">Busy (On Duty)</span>
+                                        <span class="text-amber-500 font-bold">15%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                        <div class="bg-amber-500 h-full" style="width: 15%"></div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="input-group">
-                                <label>Per KM Rate (₹)</label>
-                                <input type="number" value="18">
-                            </div>
-                            <button class="btn-login" style="padding:10px;">Update Rates</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div id="ambulances" class="page-section">
-                <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem;">
-                    <h3>Fleet Management</h3>
-                    <button class="btn-action btn-accept">+ Add Ambulance</button>
+            <div id="ambulances-view" class="tab-view hide-section space-y-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-2xl font-bold">Fleet Management</h3>
+                    <button class="bg-red-500 px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-red-500/20">+ Add New Ambulance</button>
                 </div>
-                <div class="stats-grid" id="fleet-list">
+                <div id="ambulance-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     </div>
             </div>
 
-            <div id="requests" class="page-section">
-                <h3>Live Emergency Requests</h3>
-                <div id="request-container" style="margin-top:1.5rem;">
-                    </div>
-            </div>
+            <div id="tracking-view" class="tab-view hide-section">
+                <div class="glass-card w-full h-[600px] relative overflow-hidden p-2">
+                    <div class="absolute inset-0 bg-[#1e293b] opacity-40 pattern-grid"></div>
+                    <div class="relative w-full h-full rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden">
+                        <div class="absolute inset-0 opacity-20" style="background-image: url('https://www.transparenttextures.com/patterns/stardust.png');"></div>
+                        
+                        <div class="absolute top-1/2 left-0 w-full h-1 bg-slate-800"></div>
+                        <div class="absolute top-0 left-1/3 w-1 h-full bg-slate-800"></div>
 
-            <div id="tracking" class="page-section">
-                <div class="glass-card">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                        <h3>Active Fleet Tracking</h3>
-                        <span class="status-pill pill-available">● 14 Tracking Live</span>
-                    </div>
-                    <div class="map-container" id="map-ui">
-                        <div class="ambulance-marker" id="amb-1" style="top:20%; left:30%"><i class="fa-solid fa-truck-medical"></i></div>
-                        <div class="ambulance-marker" id="amb-2" style="top:60%; left:70%"><i class="fa-solid fa-truck-medical"></i></div>
-                        <svg width="100%" height="100%" style="position:absolute; pointer-events:none;">
-                            <path d="M 100 100 Q 200 150 300 100" stroke="rgba(255,77,77,0.4)" stroke-width="2" fill="transparent" stroke-dasharray="5,5" />
-                        </svg>
+                        <div id="tracking-marker" class="absolute top-1/2 left-0 transition-all duration-[2000ms] flex flex-col items-center gap-2" style="transform: translate(100px, -24px);">
+                            <div class="bg-red-500 text-white p-2 rounded-lg shadow-2xl shadow-red-500/50">
+                                <i class="fa-solid fa-ambulance animate-bounce"></i>
+                            </div>
+                            <span class="bg-slate-900/90 text-[10px] px-2 py-0.5 rounded border border-slate-700 whitespace-nowrap">AMB-402 (En Route)</span>
+                        </div>
+
+                        <div class="absolute top-[20%] right-[10%] text-emerald-500 text-2xl">
+                            <i class="fa-solid fa-location-dot animate-pulse"></i>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div id="analytics" class="page-section">
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
-                    <div class="glass-card">
-                        <h3>Response Efficiency</h3>
-                        <canvas id="responseChart"></canvas>
+            <div id="settlements-view" class="tab-view hide-section space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="glass-card p-6 bg-emerald-500/5 border-l-4 border-emerald-500">
+                        <p class="text-xs font-bold text-slate-400 uppercase">Hospital Earnings</p>
+                        <h4 class="text-3xl font-black mt-1">₹ 4,28,400</h4>
                     </div>
-                    <div class="glass-card">
-                        <h3>Revenue (Weekly)</h3>
+                    <div class="glass-card p-6 bg-red-500/5 border-l-4 border-red-500">
+                        <p class="text-xs font-bold text-slate-400 uppercase">ResQ Commission (15%)</p>
+                        <h4 class="text-3xl font-black mt-1">₹ 64,260</h4>
+                    </div>
+                    <div class="glass-card p-6 bg-amber-500/5 border-l-4 border-amber-500">
+                        <p class="text-xs font-bold text-slate-400 uppercase">Pending Settlement</p>
+                        <h4 class="text-3xl font-black mt-1">₹ 12,500</h4>
+                        <button class="mt-4 text-xs font-black text-amber-500 underline underline-offset-4">REQUEST RELEASE</button>
+                    </div>
+                </div>
+
+                <div class="glass-card overflow-hidden">
+                    <div class="p-6 border-b border-slate-800 flex justify-between items-center">
+                        <h3 class="font-bold">Transaction History</h3>
+                        <div class="flex gap-2">
+                            <button class="bg-slate-800 text-xs font-bold px-4 py-2 rounded-lg">All</button>
+                            <button class="text-slate-500 text-xs font-bold px-4 py-2 rounded-lg">Settled</button>
+                            <button class="text-slate-500 text-xs font-bold px-4 py-2 rounded-lg">Failed</button>
+                        </div>
+                    </div>
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-[10px] uppercase text-slate-500 font-black tracking-widest border-b border-slate-800">
+                                <th class="px-6 py-4">Transaction ID</th>
+                                <th class="px-6 py-4">Date</th>
+                                <th class="px-6 py-4">Amount</th>
+                                <th class="px-6 py-4">Type</th>
+                                <th class="px-6 py-4">Status</th>
+                                <th class="px-6 py-4">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="settlement-body" class="text-sm">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="analytics-view" class="tab-view hide-section space-y-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="glass-card p-8">
+                        <h3 class="text-xl font-bold mb-6">Booking Volume (Monthly)</h3>
+                        <canvas id="bookingChart"></canvas>
+                    </div>
+                    <div class="glass-card p-8">
+                        <h3 class="text-xl font-bold mb-6">Revenue Growth</h3>
                         <canvas id="revenueChart"></canvas>
                     </div>
                 </div>
             </div>
 
-        </section>
-    </main>
+            <div id="patients-view" class="tab-view hide-section">
+                <div class="glass-card overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-[10px] uppercase text-slate-500 font-black border-b border-slate-800">
+                                <th class="px-6 py-4">Patient Name</th>
+                                <th class="px-6 py-4">Case Type</th>
+                                <th class="px-6 py-4">Assigned Driver</th>
+                                <th class="px-6 py-4">Payment</th>
+                                <th class="px-6 py-4">Status</th>
+                                <th class="px-6 py-4">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patient-body" class="text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <div id="arrival-overlay" class="fixed inset-0 z-[10000] hidden items-center justify-center bg-red-600/20 backdrop-blur-md">
+        <div class="glass-card p-10 max-w-lg text-center alert-flash border-4 border-red-500">
+            <i class="fa-solid fa-triangle-exclamation text-6xl text-white mb-6"></i>
+            <h2 class="text-4xl font-black text-white uppercase tracking-tighter mb-4">Immediate Arrival!</h2>
+            <p class="text-xl font-bold text-white mb-2">Ambulance AMB-402 is 200m away.</p>
+            <p class="text-white/80 font-medium mb-8">Prepare trauma bay, senior doctor, and stretcher immediately.</p>
+            <button onclick="dismissAlert()" class="bg-white text-red-600 px-10 py-4 rounded-2xl font-black uppercase tracking-widest shadow-2xl transition-transform active:scale-95">Acknowledge Alert</button>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-10 right-10 z-[10001] flex flex-col gap-4"></div>
 
     <script>
-        // --- AUTH LOGIC ---
+        // --- AUTH SYSTEM ---
         const loginForm = document.getElementById('login-form');
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
             const pass = document.getElementById('password').value;
 
-            if(email === 'admin@resq.com' && pass === '123456') {
-                document.getElementById('loader').style.display = 'flex';
+            if(email === 'hospital@resq.com' && pass === '123456') {
+                document.getElementById('login-screen').classList.add('-translate-y-full');
                 setTimeout(() => {
-                    document.getElementById('login-page').style.transform = 'translateY(-100%)';
-                    document.getElementById('main-dashboard').style.visibility = 'visible';
-                    document.getElementById('loader').style.display = 'none';
-                    initCharts();
-                    initFleet();
-                    simulateRequests();
-                }, 1500);
+                    document.getElementById('login-screen').classList.add('hidden');
+                    document.getElementById('dashboard-ui').classList.remove('opacity-0');
+                    initDashboard();
+                }, 700);
             } else {
-                alert('Invalid credentials! Hint: Use the demo button.');
+                showToast("Access Denied: Invalid Credentials", "error");
             }
         });
 
-        function showDemo() {
-            document.getElementById('demo-box').style.display = 'block';
+        function showDemoCredentials() {
+            document.getElementById('demo-creds').classList.toggle('hidden');
         }
 
-        // --- NAVIGATION ---
-        function showPage(pageId, element) {
-            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-            element.classList.add('active');
-            document.getElementById('page-title').innerText = pageId.charAt(0).toUpperCase() + pageId.slice(1);
+        // --- DASHBOARD CORE ---
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-view').forEach(v => v.classList.add('hide-section'));
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active', 'text-white'));
+            
+            const view = document.getElementById(`${tab}-view`);
+            if(view) view.classList.remove('hide-section');
+            
+            const activeItem = [...document.querySelectorAll('.sidebar-item')].find(i => i.innerText.toLowerCase().includes(tab === 'home' ? 'dashboard' : tab));
+            if(activeItem) activeItem.classList.add('active');
+
+            document.getElementById('view-title').innerText = tab.charAt(0).toUpperCase() + tab.slice(1);
+            
+            if(tab === 'tracking') startTrackingSim();
         }
 
-        // --- FLEET DATA ---
-        const fleet = [
-            { id: 'A-101', type: 'ICU / Ventilator', status: 'Available', driver: 'Suresh Kumar' },
-            { id: 'A-104', type: 'Basic Life Support', status: 'Busy', driver: 'Rahul Raj' },
-            { id: 'A-205', type: 'Oxygen Support', status: 'Available', driver: 'Priya Singh' },
-            { id: 'A-099', type: 'Neonatal Care', status: 'Offline', driver: 'Unassigned' }
+        function initDashboard() {
+            renderRequests();
+            renderAmbulances();
+            renderSettlements();
+            renderPatients();
+            initCharts();
+            
+            // Random Events
+            setTimeout(() => {
+                showToast("New Emergency Request Received!", "urgent");
+                document.getElementById('arrival-overlay').classList.replace('hidden', 'flex');
+            }, 8000);
+        }
+
+        // --- DATA RENDERING ---
+        const requests = [
+            { id: 1, name: "Rahul Varma", type: "CRITICAL", subtype: "Cardiac Arrest", loc: "Gachibowli Flyover", dist: "2.4 km", timer: 15 },
+            { id: 2, name: "Ananya Rao", type: "NORMAL", subtype: "Fracture", loc: "Inorbit Mall", dist: "5.1 km", timer: 15 }
         ];
 
-        function initFleet() {
-            const container = document.getElementById('fleet-list');
-            container.innerHTML = fleet.map(amb => `
-                <div class="glass-card">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
-                        <span style="font-weight:700;">${amb.id}</span>
-                        <span class="status-pill ${amb.status === 'Available' ? 'pill-available' : 'pill-busy'}">${amb.status}</span>
+        function renderRequests() {
+            const container = document.getElementById('request-list');
+            container.innerHTML = requests.map(req => `
+                <div class="glass-card p-6 flex items-center justify-between border-l-4 ${req.type === 'CRITICAL' ? 'border-red-500' : 'border-amber-500'}" id="req-${req.id}">
+                    <div class="flex gap-6 items-center">
+                        <div class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center font-bold text-slate-300">
+                            ${req.name.split(' ').map(n => n[0]).join('')}
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h4 class="font-bold text-lg">${req.name}</h4>
+                                <span class="text-[10px] font-black px-2 py-0.5 rounded ${req.type === 'CRITICAL' ? 'bg-red-500 text-white' : 'bg-amber-500 text-black'}">${req.type}</span>
+                            </div>
+                            <p class="text-sm text-slate-400">${req.subtype} • <span class="text-slate-200">${req.loc}</span></p>
+                        </div>
                     </div>
-                    <p style="font-size:0.85rem; color:var(--text-dim);">${amb.type}</p>
-                    <p style="font-size:0.9rem; margin-top:0.5rem;"><i class="fa-solid fa-user-circle"></i> ${amb.driver}</p>
-                    <button class="btn-action btn-reject" style="width:100%; margin-top:1rem; border:1px solid var(--glass-border)">Edit Details</button>
+                    <div class="text-center px-8 border-x border-slate-800">
+                        <p class="text-xs text-slate-500 font-bold uppercase tracking-widest">Distance</p>
+                        <p class="text-xl font-black">${req.dist}</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="text-right">
+                            <p class="text-xs text-slate-500 font-bold mb-1">Expires in</p>
+                            <span class="text-xl font-mono text-red-500 countdown-${req.id}">${req.timer}s</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="acceptRequest(${req.id})" class="h-12 w-12 bg-emerald-500/20 text-emerald-500 rounded-xl hover:bg-emerald-500 hover:text-white transition-all"><i class="fa-solid fa-check"></i></button>
+                            <button onclick="rejectRequest(${req.id})" class="h-12 w-12 bg-slate-800 text-slate-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                    </div>
                 </div>
             `).join('');
+
+            // Start Timers
+            requests.forEach(req => startTimer(req.id));
         }
 
-        // --- EMERGENCY REQUESTS ---
-        function simulateRequests() {
-            const container = document.getElementById('request-container');
-            const requests = [
-                { id: 1, loc: 'Gachibowli, Hyderabad', dist: '2.4 km', type: 'Critical - Cardiac' },
-                { id: 2, loc: 'Banjara Hills, Road No 12', dist: '5.1 km', type: 'Normal - Fracture' }
+        function startTimer(id) {
+            let time = 15;
+            const timerEl = document.querySelector(`.countdown-${id}`);
+            const itv = setInterval(() => {
+                time--;
+                if(timerEl) timerEl.innerText = `${time}s`;
+                if(time <= 0) {
+                    clearInterval(itv);
+                    const el = document.getElementById(`req-${id}`);
+                    if(el) {
+                        el.classList.add('opacity-50', 'pointer-events-none');
+                        el.innerHTML = `<div class="w-full text-center py-2 text-red-400 font-bold italic">Request Reassigned Automatically by AI (Timeout)</div>`;
+                        setTimeout(() => el.remove(), 2000);
+                    }
+                }
+            }, 1000);
+        }
+
+        function acceptRequest(id) {
+            const el = document.getElementById(`req-${id}`);
+            el.innerHTML = `<div class="w-full text-center py-4 bg-emerald-500/10 text-emerald-500 font-bold rounded-xl animate-pulse">AMBULANCE DISPATCHED: AMB-402 is en route to ${requests.find(r => r.id === id).name}</div>`;
+            showToast("Ambulance Dispatched!", "success");
+            setTimeout(() => el.remove(), 4000);
+        }
+
+        function renderAmbulances() {
+            const fleet = [
+                { id: "AMB-401", driver: "Karan Singh", status: "Available", type: "ALS" },
+                { id: "AMB-402", driver: "John Doe", status: "Busy", type: "ICU" },
+                { id: "AMB-403", driver: "Priya Das", status: "Offline", type: "BLS" },
+                { id: "AMB-404", driver: "Vikram R.", status: "Available", type: "ALS" },
+                { id: "AMB-405", driver: "Sunil G.", status: "Available", type: "BLS" },
+                { id: "AMB-406", driver: "Unassigned", status: "Offline", type: "ALS" }
             ];
 
-            container.innerHTML = requests.map(req => `
-                <div class="glass-card request-card" id="req-${req.id}">
-                    <div style="position:relative; flex:1">
-                        <div style="color:var(--primary); font-weight:700; font-size:0.8rem; text-transform:uppercase;">${req.type}</div>
-                        <h4 style="margin:5px 0;">${req.loc}</h4>
-                        <div style="color:var(--text-dim); font-size:0.85rem;"><i class="fa-solid fa-location-dot"></i> ${req.dist} from hospital</div>
-                        <div class="timer-bar" id="timer-${req.id}"></div>
+            const grid = document.getElementById('ambulance-grid');
+            grid.innerHTML = fleet.map(amb => `
+                <div class="glass-card p-6">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="w-12 h-12 bg-slate-800 rounded-xl flex items-center justify-center text-xl text-red-500">
+                            <i class="fa-solid fa-ambulance"></i>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${amb.status === 'Available' ? 'bg-emerald-500/10 text-emerald-500' : amb.status === 'Busy' ? 'bg-amber-500/10 text-amber-500' : 'bg-slate-500/10 text-slate-500'}">
+                            <span class="status-dot ${amb.status === 'Available' ? 'bg-emerald-500' : amb.status === 'Busy' ? 'bg-amber-500' : 'bg-slate-500'}"></span> ${amb.status}
+                        </span>
                     </div>
-                    <div>
-                        <button class="btn-action btn-accept" onclick="acceptReq(${req.id})">Accept</button>
-                        <button class="btn-action btn-reject" onclick="rejectReq(${req.id})">Reject</button>
+                    <h4 class="text-xl font-bold">${amb.id}</h4>
+                    <p class="text-sm text-slate-400 mb-6">${amb.type} • Advanced Logistics</p>
+                    <div class="flex items-center gap-3 p-3 bg-slate-900/50 rounded-xl mb-6">
+                        <img src="https://ui-avatars.com/api/?name=${amb.driver}" class="w-8 h-8 rounded-full">
+                        <div>
+                            <p class="text-xs font-bold">${amb.driver}</p>
+                            <p class="text-[10px] text-slate-500">Certified Paramedic</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button class="text-xs font-bold py-2 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors">TRACK</button>
+                        <button class="text-xs font-bold py-2 border border-slate-700 rounded-lg hover:border-red-500 transition-colors">CONFIG</button>
                     </div>
                 </div>
             `).join('');
-
-            requests.forEach(req => {
-                setTimeout(() => {
-                    const bar = document.getElementById(`timer-${req.id}`);
-                    if(bar) bar.style.width = '0%';
-                    setTimeout(() => {
-                        const el = document.getElementById(`req-${req.id}`);
-                        if(el) {
-                            el.innerHTML = `<div style="color:var(--accent-yellow)">⚠️ Reassigned Automatically to Nearer Hub</div>`;
-                            setTimeout(() => el.remove(), 2000);
-                        }
-                    }, 15000);
-                }, 100);
-            });
         }
 
-        function acceptReq(id) {
-            const el = document.getElementById(`req-${id}`);
-            el.style.borderColor = 'var(--accent-green)';
-            el.innerHTML = `<div style="color:var(--accent-green); font-weight:600;"><i class="fa-solid fa-check-circle"></i> Request Accepted. Ambulance A-101 Dispatched.</div>`;
-            setTimeout(() => el.remove(), 3000);
+        function renderSettlements() {
+            const data = [
+                { id: "TXN_9921", date: "22 Oct, 2023", amount: "₹ 12,400", type: "Ride Fare", status: "Settled" },
+                { id: "TXN_9922", date: "23 Oct, 2023", amount: "₹ 8,100", type: "Ride Fare", status: "Settled" },
+                { id: "TXN_9923", date: "24 Oct, 2023", amount: "₹ 15,200", type: "ResQ Bonus", status: "Pending" }
+            ];
+            document.getElementById('settlement-body').innerHTML = data.map(item => `
+                <tr class="border-b border-slate-800/50 hover:bg-white/[0.02]">
+                    <td class="px-6 py-4 font-mono text-xs text-blue-400">${item.id}</td>
+                    <td class="px-6 py-4 text-slate-400">${item.date}</td>
+                    <td class="px-6 py-4 font-bold text-white">${item.amount}</td>
+                    <td class="px-6 py-4 text-slate-400">${item.type}</td>
+                    <td class="px-6 py-4"><span class="px-2 py-1 rounded-md text-[10px] font-black uppercase ${item.status === 'Settled' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}">${item.status}</span></td>
+                    <td class="px-6 py-4"><button class="text-slate-500 hover:text-white"><i class="fa-solid fa-download"></i></button></td>
+                </tr>
+            `).join('');
         }
 
-        // --- MAP ANIMATION ---
-        setInterval(() => {
-            const amb1 = document.getElementById('amb-1');
-            const amb2 = document.getElementById('amb-2');
-            if(amb1) {
-                amb1.style.top = Math.random() * 80 + '%';
-                amb1.style.left = Math.random() * 80 + '%';
-            }
-        }, 4000);
+        function renderPatients() {
+            const patients = [
+                { name: "Suresh Khanna", case: "Cardiac Arrest", driver: "Karan Singh", payment: "Paid", status: "Admitted" },
+                { name: "Meera Bai", case: "Maternity", driver: "Priya Das", payment: "Pending", status: "En Route" }
+            ];
+            document.getElementById('patient-body').innerHTML = patients.map(p => `
+                <tr class="border-b border-slate-800/50 hover:bg-white/[0.02]">
+                    <td class="px-6 py-4 font-bold">${p.name}</td>
+                    <td class="px-6 py-4"><span class="bg-red-500/10 text-red-500 px-2 py-1 rounded text-xs font-bold">${p.case}</span></td>
+                    <td class="px-6 py-4 text-slate-400">${p.driver}</td>
+                    <td class="px-6 py-4"><span class="text-emerald-500 font-bold">${p.payment}</span></td>
+                    <td class="px-6 py-4 text-slate-200">${p.status}</td>
+                    <td class="px-6 py-4"><button onclick="window.location.href='tel:8978257449'" class="bg-blue-500/10 text-blue-500 px-4 py-1.5 rounded-lg text-xs font-black hover:bg-blue-500 hover:text-white transition-all">CALL</button></td>
+                </tr>
+            `).join('');
+        }
+
+        // --- TRACKING SIM ---
+        function startTrackingSim() {
+            const marker = document.getElementById('tracking-marker');
+            let pos = 0;
+            setInterval(() => {
+                pos = (pos + 5) % 100;
+                marker.style.left = pos + '%';
+            }, 2000);
+        }
+
+        function dismissAlert() {
+            document.getElementById('arrival-overlay').classList.replace('flex', 'hidden');
+        }
+
+        function showToast(msg, type) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `glass-card p-4 flex items-center gap-3 border-l-4 min-w-[300px] animate-fade-in ${type === 'error' ? 'border-red-500' : 'border-emerald-500'}`;
+            toast.innerHTML = `
+                <i class="fa-solid ${type === 'error' ? 'fa-circle-xmark text-red-500' : 'fa-circle-check text-emerald-500'}"></i>
+                <span class="text-sm font-bold">${msg}</span>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
 
         // --- CHARTS ---
         function initCharts() {
-            const ctx = document.getElementById('mainChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['8am', '10am', '12pm', '2pm', '4pm', '6pm', '8pm'],
-                    datasets: [{
-                        label: 'Bookings',
-                        data: [5, 12, 19, 15, 25, 32, 28],
-                        borderColor: '#ff4d4d',
-                        tension: 0.4,
-                        fill: true,
-                        backgroundColor: 'rgba(255, 77, 77, 0.1)'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } }
-                }
-            });
+            Chart.defaults.color = '#94a3b8';
+            Chart.defaults.font.family = 'Plus Jakarta Sans';
 
-            const revCtx = document.getElementById('revenueChart').getContext('2d');
-            new Chart(revCtx, {
-                type: 'bar',
+            new Chart(document.getElementById('responseChart'), {
+                type: 'line',
                 data: {
                     labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                     datasets: [{
-                        label: 'Revenue',
-                        data: [12000, 19000, 15000, 22000, 30000, 45000, 38000],
-                        backgroundColor: '#3b82f6'
+                        label: 'Response Time (Min)',
+                        data: [5.2, 4.8, 6.1, 4.2, 3.9, 5.5, 4.8],
+                        borderColor: '#ef4444',
+                        tension: 0.4,
+                        fill: true,
+                        backgroundColor: 'rgba(239, 68, 68, 0.05)'
                     }]
                 },
-                options: { responsive: true, plugins: { legend: { display: false } } }
+                options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } } }
+            });
+
+            new Chart(document.getElementById('bookingChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Rides',
+                        data: [450, 590, 800, 720, 950, 1284],
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 8
+                    }]
+                },
+                options: { plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' } } } }
+            });
+            
+            new Chart(document.getElementById('revenueChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Revenue',
+                        data: [200000, 350000, 410000, 400000, 550000, 842000],
+                        borderColor: '#10b981',
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+                options: { plugins: { legend: { display: false } } }
             });
         }
     </script>
