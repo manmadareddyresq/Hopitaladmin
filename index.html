@@ -1,451 +1,402 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ResQ | Hospital Command Center - Next-Gen Emergency Logistics</title>
+    <title>ResQ | Hospital Command Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://unpkg.com/@lucide/web"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF3B30',
+                        secondary: '#007AFF',
+                        accent: '#FF9500',
+                        darkBg: '#08090B',
+                        surface: '#121418',
+                        border: 'rgba(255,255,255,0.08)'
+                    },
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
     <style>
-        :root {
-            --primary: #FF3B30;
-            --secondary: #0A84FF;
-            --bg-dark: #05070A;
-            --surface: #0F1218;
-            --glass: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.08);
-        }
-
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg-dark);
-            color: #F8FAFC;
-            overflow: hidden;
-        }
-
-        .glass-panel {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-        }
-
-        .sidebar-active {
-            background: linear-gradient(90deg, rgba(255, 59, 48, 0.15) 0%, transparent 100%);
-            border-left: 4px solid var(--primary);
-            color: var(--primary);
-        }
-
-        .nav-item {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .nav-item:hover:not(.sidebar-active) {
-            background: rgba(255, 255, 255, 0.05);
-            padding-left: 1.5rem;
-        }
-
-        .emergency-glow {
-            animation: red-pulse 1.5s infinite;
-        }
-
-        @keyframes red-pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.4); }
-            70% { box-shadow: 0 0 0 15px rgba(255, 59, 48, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
-        }
-
-        .map-grid {
-            background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
-            background-size: 30px 30px;
-        }
-
-        .shimmer {
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-            background-size: 200% 100%;
-            animation: shimmer-anim 2s infinite linear;
-        }
-
-        @keyframes shimmer-anim {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-
-        .page-transition {
-            animation: slideUp 0.5s ease-out forwards;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; }
-
-        .btn-premium {
-            background: linear-gradient(135deg, var(--primary) 0%, #E02E24 100%);
-            box-shadow: 0 8px 20px -6px rgba(255, 59, 48, 0.5);
-            transition: all 0.3s ease;
-        }
-
-        .btn-premium:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 28px -6px rgba(255, 59, 48, 0.6);
-        }
-
-        #login-screen {
-            background: radial-gradient(circle at center, #1a1a1a 0%, #05070a 100%);
-        }
+        body { background-color: #08090B; color: #E2E8F0; overflow-x: hidden; }
+        .glass { background: rgba(18, 20, 24, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+        .sidebar-item.active { background: linear-gradient(90deg, rgba(255,59,48,0.15) 0%, transparent 100%); border-left: 3px solid #FF3B30; color: #FF3B30; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .animate-pulse-red { animation: pulse-red 2s infinite; }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 59, 48, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); } }
+        .map-bg { background-image: radial-gradient(#2d2d2d 1px, transparent 1px); background-size: 20px 20px; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        @media (max-width: 1024px) { .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; } .sidebar.open { transform: translateX(0); } }
     </style>
 </head>
-<body class="antialiased h-screen">
+<body class="font-sans">
 
-    <div id="login-container" class="fixed inset-0 z-[1000] flex items-center justify-center">
-        <div id="login-screen" class="w-full h-full flex items-center justify-center p-6">
-            <div class="glass-panel p-10 w-full max-w-md text-center border-t-4 border-t-red-600 scale-95 opacity-0 animate-[slideUp_0.6s_ease-out_forwards]">
-                <div class="mb-8">
-                    <div class="w-20 h-20 bg-red-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-red-600/30">
-                        <i data-lucide="shield-alert" class="w-10 h-10 text-white"></i>
-                    </div>
-                    <h1 class="text-3xl font-extrabold tracking-tight">ResQ <span class="text-red-500">Command</span></h1>
-                    <p class="text-slate-400 mt-2 text-sm uppercase tracking-widest font-bold">Logistics Command Center</p>
+    <div id="login-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-black p-4 transition-opacity duration-500">
+        <div class="glass w-full max-w-md p-8 rounded-3xl shadow-2xl border-t-4 border-primary">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-2xl mb-4">
+                    <i class="fas fa-truck-medical text-primary text-3xl animate-bounce"></i>
                 </div>
-                <div class="space-y-4">
-                    <div class="text-left">
-                        <label class="text-[10px] font-black uppercase text-slate-500 ml-2">Hospital Email</label>
-                        <input type="email" id="email" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:outline-none focus:border-red-500 transition-all text-sm" placeholder="hospital@resq.com">
-                    </div>
-                    <div class="text-left">
-                        <label class="text-[10px] font-black uppercase text-slate-500 ml-2">Security Key</label>
-                        <input type="password" id="password" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:outline-none focus:border-red-500 transition-all text-sm" placeholder="••••••••">
-                    </div>
-                    <button onclick="handleLogin()" class="w-full btn-premium py-4 rounded-xl font-black text-white uppercase tracking-widest text-xs mt-4">Initialize Authorization</button>
-                    <button onclick="showCreds()" class="text-[10px] text-slate-500 hover:text-white underline underline-offset-4 font-bold">Show Master Credentials</button>
-                    <div id="creds-hint" class="hidden p-3 bg-white/5 rounded-lg text-[10px] text-slate-400 border border-white/5">
-                        Email: hospital@resq.com | Pass: 123456
-                    </div>
+                <h1 class="text-3xl font-extrabold tracking-tight">ResQ <span class="text-primary italic">Command</span></h1>
+                <p class="text-gray-400 text-sm mt-2">Emergency Response Logistics System</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase ml-1">Hospital ID</label>
+                    <input type="email" id="login-email" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-primary outline-none transition-all" placeholder="hospital@resq.com">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase ml-1">Access Key</label>
+                    <input type="password" id="login-pass" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mt-1 focus:border-primary outline-none transition-all" placeholder="••••••••">
+                </div>
+                <button onclick="handleLogin()" class="w-full bg-primary hover:bg-red-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-primary/20">Authorize Access</button>
+                <button onclick="toggleCreds()" class="w-full text-xs text-gray-500 hover:text-white transition-colors">Show Master Credentials</button>
+                <div id="creds-hint" class="hidden text-center p-3 rounded-lg bg-white/5 border border-white/10 text-[10px] text-gray-400 font-mono">
+                    Email: hospital@resq.com | Pass: 123456
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="dashboard-container" class="hidden h-screen flex opacity-0 transition-opacity duration-700">
+    <div id="main-app" class="hidden h-screen flex flex-col lg:flex-row overflow-hidden">
         
-        <aside class="w-72 glass-panel rounded-none border-y-0 border-l-0 flex flex-col z-50">
-            <div class="p-8">
-                <div class="flex items-center gap-3 group cursor-pointer">
-                    <div class="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform">
-                        <i data-lucide="activity" class="w-6 h-6 text-white"></i>
-                    </div>
-                    <div>
-                        <span class="text-2xl font-black tracking-tighter uppercase italic block leading-none">ResQ</span>
-                        <span class="text-[8px] font-black text-slate-500 uppercase tracking-widest">Apollo Hospitals</span>
-                    </div>
+        <aside id="sidebar" class="sidebar fixed lg:relative z-50 w-72 h-full glass border-r border-white/5 flex flex-col">
+            <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-primary rounded flex items-center justify-center"><i class="fas fa-plus text-white text-xs"></i></div>
+                    <span class="font-black text-xl tracking-tighter">ResQ <span class="text-primary">Admin</span></span>
                 </div>
+                <button onclick="toggleSidebar()" class="lg:hidden text-gray-400"><i class="fas fa-times"></i></button>
             </div>
-
-            <nav class="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
-                <div class="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-4 mt-4 mb-2">Operation</div>
-                <button onclick="navTo('dashboard')" id="nav-dashboard" class="nav-item sidebar-active w-full flex items-center gap-4 px-4 py-3.5 rounded-xl">
-                    <i data-lucide="layout-grid" class="w-5 h-5"></i> <span class="text-sm font-bold tracking-tight">Dashboard</span>
-                </button>
-                <button onclick="navTo('requests')" id="nav-requests" class="nav-item w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-slate-400 relative">
-                    <i data-lucide="bell-ring" class="w-5 h-5"></i> <span class="text-sm font-bold tracking-tight">Live Requests</span>
-                    <span class="absolute right-4 w-5 h-5 bg-red-600 text-[10px] flex items-center justify-center rounded-full text-white font-black animate-pulse">24</span>
-                </button>
-                <button onclick="navTo('missed')" id="nav-missed" class="nav-item w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-slate-400">
-                    <i data-lucide="alert-triangle" class="w-5 h-5 text-red-500"></i> <span class="text-sm font-bold tracking-tight">Missed Alerts</span>
-                </button>
-                <button onclick="navTo('tracking')" id="nav-tracking" class="nav-item w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-slate-400">
-                    <i data-lucide="map" class="w-5 h-5"></i> <span class="text-sm font-bold tracking-tight">Live Tracking</span>
-                </button>
+            
+            <nav class="flex-1 overflow-y-auto p-4 space-y-2 hide-scroll">
+                <p class="text-[10px] font-bold text-gray-600 uppercase tracking-[0.2em] px-4 py-2">Operational</p>
+                <a href="#" onclick="showSection('dashboard')" id="nav-dashboard" class="sidebar-item active flex items-center gap-4 px-4 py-3 rounded-xl transition-all"><i class="fas fa-chart-pie w-5"></i> Dashboard</a>
+                <a href="#" onclick="showSection('requests')" id="nav-requests" class="sidebar-item flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 transition-all relative">
+                    <i class="fas fa-bell w-5"></i> Live Requests
+                    <span class="absolute right-4 bg-primary text-[10px] text-white px-2 py-0.5 rounded-full animate-pulse">24</span>
+                </a>
+                <a href="#" onclick="showSection('missed')" id="nav-missed" class="sidebar-item flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 transition-all"><i class="fas fa-exclamation-triangle w-5 text-red-500"></i> Missed Alerts</a>
+                <a href="#" onclick="showSection('tracking')" id="nav-tracking" class="sidebar-item flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 transition-all"><i class="fas fa-map-location-dot w-5"></i> Live Tracking</a>
                 
-                <div class="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-4 mt-8 mb-2">Management</div>
-                <button onclick="navTo('ambulances')" id="nav-ambulances" class="nav-item w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-slate-400">
-                    <i data-lucide="truck" class="w-5 h-5"></i> <span class="text-sm font-bold tracking-tight">Ambulances</span>
-                </button>
-                <button onclick="navTo('drivers')" id="nav-drivers" class="nav-item w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-slate-400">
-                    <i data-lucide="users-2" class="w-5 h-5"></i> <span class="text-sm font-bold tracking-tight">Fleet Drivers</span>
-                </button>
-                <button onclick="navTo('patients')" id="nav-patients" class="nav-item w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-slate-400">
-                    <i data-lucide="user-plus" class="w-5 h-5"></i> <span class="text-sm font-bold tracking-tight">Patients Log</span>
-                </button>
-
-                <div class="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] ml-4 mt-8 mb-2">Finance</div>
-                <button onclick="navTo('settlements')" id="nav-settlements" class="nav-item w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-slate-400">
-                    <i data-lucide="wallet" class="w-5 h-5"></i> <span class="text-sm font-bold tracking-tight">Settlements</span>
-                </button>
-                <button onclick="navTo('reports')" id="nav-reports" class="nav-item w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-slate-400">
-                    <i data-lucide="file-bar-chart" class="w-5 h-5"></i> <span class="text-sm font-bold tracking-tight">Cloud Reports</span>
-                </button>
+                <p class="text-[10px] font-bold text-gray-600 uppercase tracking-[0.2em] px-4 py-2 mt-4">Management</p>
+                <a href="#" onclick="showSection('ambulances')" id="nav-ambulances" class="sidebar-item flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 transition-all"><i class="fas fa-ambulance w-5"></i> Ambulances</a>
+                <a href="#" onclick="showSection('drivers')" id="nav-drivers" class="sidebar-item flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 transition-all"><i class="fas fa-id-card w-5"></i> Fleet Drivers</a>
+                <a href="#" onclick="showSection('patients')" id="nav-patients" class="sidebar-item flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 transition-all"><i class="fas fa-hospital-user w-5"></i> Patients Log</a>
+                
+                <p class="text-[10px] font-bold text-gray-600 uppercase tracking-[0.2em] px-4 py-2 mt-4">Backoffice</p>
+                <a href="#" onclick="showSection('settlements')" id="nav-settlements" class="sidebar-item flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 transition-all"><i class="fas fa-wallet w-5"></i> Settlements</a>
+                <a href="#" onclick="showSection('reports')" id="nav-reports" class="sidebar-item flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 transition-all"><i class="fas fa-file-invoice w-5"></i> Reports</a>
+                <a href="#" onclick="showSection('settings')" id="nav-settings" class="sidebar-item flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 transition-all"><i class="fas fa-cog w-5"></i> Settings</a>
             </nav>
 
             <div class="p-6 border-t border-white/5">
-                <button onclick="logout()" class="flex items-center gap-3 text-slate-500 hover:text-red-500 transition-colors">
-                    <i data-lucide="power" class="w-4 h-4"></i>
-                    <span class="text-xs font-black uppercase tracking-widest">Secure Logout</span>
+                <div class="flex items-center gap-3 mb-6">
+                    <img src="https://ui-avatars.com/api/?name=Apollo+Hospitals&background=FF3B30&color=fff" class="w-10 h-10 rounded-xl" alt="Avatar">
+                    <div>
+                        <p class="text-xs font-bold truncate w-32">Apollo - Kukatpally</p>
+                        <p class="text-[10px] text-emerald-500 font-bold">Active Station</p>
+                    </div>
+                </div>
+                <button onclick="logout()" class="w-full flex items-center justify-center gap-2 text-xs font-bold text-gray-500 hover:text-primary transition-colors">
+                    <i class="fas fa-sign-out-alt"></i> Secure Logout
                 </button>
             </div>
         </aside>
 
-        <main class="flex-1 overflow-y-auto relative flex flex-col bg-slate-950/20">
+        <main class="flex-1 flex flex-col min-w-0 bg-darkBg relative overflow-hidden">
             
-            <header class="p-8 flex justify-between items-center sticky top-0 z-40 bg-slate-950/50 backdrop-blur-xl border-b border-white/5">
-                <div>
-                    <h2 id="view-title" class="text-3xl font-black tracking-tight">Global Command Center</h2>
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Real-time emergency monitoring system</p>
-                </div>
-                <div class="flex items-center gap-6">
-                    <div class="flex items-center gap-4 px-4 py-2 glass-panel border-white/5 bg-white/5">
-                        <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                        <span class="text-[10px] font-black uppercase tracking-widest">System Online</span>
+            <header class="h-20 glass border-b border-white/5 px-4 lg:px-8 flex items-center justify-between sticky top-0 z-40">
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleSidebar()" class="lg:hidden w-10 h-10 glass rounded-lg flex items-center justify-center"><i class="fas fa-bars"></i></button>
+                    <div>
+                        <h2 id="section-title" class="text-xl font-bold tracking-tight">Dashboard</h2>
+                        <p class="hidden md:block text-[10px] text-gray-500 uppercase tracking-widest font-bold">ResQ Hospital Command Center</p>
                     </div>
-                    <div class="flex items-center gap-4 border-l border-white/10 pl-6">
-                        <div class="text-right">
-                            <p class="text-xs font-black uppercase tracking-tighter">Dr. Vikram Aditya</p>
-                            <p class="text-[10px] text-slate-500 font-bold">Duty Head</p>
-                        </div>
-                        <img src="https://ui-avatars.com/api/?name=Vikram+Aditya&background=ff3b30&color=fff" class="w-10 h-10 rounded-xl shadow-lg shadow-red-500/10">
+                </div>
+                <div class="flex items-center gap-3 lg:gap-6">
+                    <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 glass rounded-full border-emerald-500/20">
+                        <span class="status-dot bg-emerald-500 animate-pulse"></span>
+                        <span class="text-[10px] font-bold text-emerald-500 uppercase">System Live</span>
+                    </div>
+                    <button onclick="showSection('requests')" class="w-10 h-10 rounded-xl glass hover:border-primary/50 transition-all relative">
+                        <i class="fas fa-bell text-gray-400"></i>
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full"></span>
+                    </button>
+                    <div class="w-[1px] h-8 bg-white/10 mx-2"></div>
+                    <div class="text-right hidden md:block">
+                        <p class="text-xs font-black">Dr. Sameer Varma</p>
+                        <p class="text-[9px] text-gray-500 font-bold uppercase">Emergency In-Charge</p>
                     </div>
                 </div>
             </header>
 
-            <div id="page-content" class="p-8 space-y-8 flex-1">
+            <div id="content-area" class="flex-1 overflow-y-auto p-4 lg:p-8 hide-scroll">
                 
-                <div id="view-dashboard" class="page-transition space-y-8">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div class="glass-panel p-6 border-l-4 border-l-red-500 group hover:scale-[1.02] transition-transform">
-                            <div class="flex justify-between items-start mb-4">
-                                <span class="text-slate-500 text-[10px] font-black uppercase tracking-widest">Active Emergency</span>
-                                <i data-lucide="flame" class="w-5 h-5 text-red-500"></i>
-                            </div>
-                            <div class="flex items-baseline gap-2">
-                                <h3 class="text-4xl font-black counter" data-target="18">0</h3>
-                                <span class="text-emerald-500 text-xs font-bold">+4 new</span>
-                            </div>
-                            <div class="w-full h-1 bg-white/5 rounded-full mt-4 overflow-hidden">
-                                <div class="w-3/4 h-full bg-red-500"></div>
-                            </div>
+                <section id="section-dashboard" class="space-y-8 animate-in fade-in duration-500">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+                        <div class="glass p-6 rounded-3xl border-l-4 border-primary">
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Live Emergencies</p>
+                            <h3 class="text-3xl font-black">18</h3>
+                            <div class="mt-4 flex items-center text-xs text-primary font-bold"><i class="fas fa-arrow-up mr-1"></i> +4 new in last 10m</div>
                         </div>
-                        <div class="glass-panel p-6 border-l-4 border-l-blue-500 group hover:scale-[1.02] transition-transform">
-                            <div class="flex justify-between items-start mb-4">
-                                <span class="text-slate-500 text-[10px] font-black uppercase tracking-widest">Total Rides Today</span>
-                                <i data-lucide="trending-up" class="w-5 h-5 text-blue-500"></i>
-                            </div>
-                            <div class="flex items-baseline gap-2">
-                                <h3 class="text-4xl font-black counter" data-target="124">0</h3>
-                                <span class="text-emerald-500 text-xs font-bold">12% up</span>
-                            </div>
-                            <div class="w-full h-1 bg-white/5 rounded-full mt-4 overflow-hidden">
-                                <div class="w-1/2 h-full bg-blue-500"></div>
-                            </div>
+                        <div class="glass p-6 rounded-3xl border-l-4 border-emerald-500">
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Daily Revenue</p>
+                            <h3 class="text-3xl font-black">₹48,250</h3>
+                            <div class="mt-4 flex items-center text-xs text-emerald-500 font-bold"><i class="fas fa-check-circle mr-1"></i> Hospital Collection</div>
                         </div>
-                        <div class="glass-panel p-6 border-l-4 border-l-emerald-500 group hover:scale-[1.02] transition-transform">
-                            <div class="flex justify-between items-start mb-4">
-                                <span class="text-slate-500 text-[10px] font-black uppercase tracking-widest">Revenue Growth</span>
-                                <i data-lucide="indian-rupee" class="w-5 h-5 text-emerald-500"></i>
-                            </div>
-                            <div class="flex items-baseline gap-2">
-                                <h3 class="text-4xl font-black">₹<span class="counter" data-target="84200">0</span></h3>
-                                <span class="text-slate-400 text-xs font-bold">Today</span>
-                            </div>
-                            <div class="w-full h-1 bg-white/5 rounded-full mt-4 overflow-hidden">
-                                <div class="w-5/6 h-full bg-emerald-500"></div>
-                            </div>
+                        <div class="glass p-6 rounded-3xl border-l-4 border-secondary">
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Avg response</p>
+                            <h3 class="text-3xl font-black">4.2m</h3>
+                            <div class="mt-4 flex items-center text-xs text-secondary font-bold"><i class="fas fa-bolt mr-1"></i> Top 1% in Kukatpally</div>
                         </div>
-                        <div class="glass-panel p-6 border-l-4 border-l-amber-500 group hover:scale-[1.02] transition-transform">
-                            <div class="flex justify-between items-start mb-4">
-                                <span class="text-slate-500 text-[10px] font-black uppercase tracking-widest">Avg Response Time</span>
-                                <i data-lucide="timer" class="w-5 h-5 text-amber-500"></i>
-                            </div>
-                            <div class="flex items-baseline gap-2">
-                                <h3 class="text-4xl font-black">4.8</h3>
-                                <span class="text-slate-400 text-xs font-bold">minutes</span>
-                            </div>
-                            <div class="w-full h-1 bg-white/5 rounded-full mt-4 overflow-hidden">
-                                <div class="w-1/3 h-full bg-amber-500"></div>
-                            </div>
+                        <div class="glass p-6 rounded-3xl border-l-4 border-accent">
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">ResQ Due (15%)</p>
+                            <h3 class="text-3xl font-black">₹7,237</h3>
+                            <div class="mt-4 flex items-center text-xs text-gray-400 font-bold">Settlement in 3 days</div>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        <div class="lg:col-span-2 glass-panel p-8">
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                        <div class="xl:col-span-2 glass p-8 rounded-3xl min-h-[400px]">
                             <div class="flex justify-between items-center mb-8">
-                                <h3 class="text-xl font-black">Emergency Response Trends</h3>
-                                <div class="flex gap-2">
-                                    <button class="px-4 py-1.5 bg-white/5 rounded-lg text-[10px] font-black uppercase">Weekly</button>
-                                    <button class="px-4 py-1.5 bg-red-600/10 text-red-500 rounded-lg text-[10px] font-black uppercase">Monthly</button>
-                                </div>
+                                <h4 class="font-bold">Requests Trend by Area</h4>
+                                <select class="bg-white/5 border border-white/10 rounded-lg text-xs p-2"><option>Last 24 Hours</option></select>
                             </div>
-                            <canvas id="trendChart" height="150"></canvas>
+                            <canvas id="areaChart" class="w-full"></canvas>
                         </div>
-                        <div class="glass-panel p-8 flex flex-col">
-                            <h3 class="text-xl font-black mb-6">Top Performers</h3>
-                            <div id="top-drivers" class="space-y-4 flex-1">
-                                </div>
-                            <button class="w-full py-4 bg-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest mt-6 hover:bg-white/10 transition-colors">View Deep Analytics</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="view-ambulances" class="page-transition hidden space-y-6">
-                    <div class="flex justify-between items-end">
-                        <h3 class="text-2xl font-black">Fleet Assets <span class="text-red-500 text-sm ml-2">(24 Total)</span></h3>
-                        <div class="flex gap-3">
-                            <input type="text" placeholder="Search fleet..." class="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs focus:border-red-500 outline-none w-64">
-                            <button class="btn-premium px-6 rounded-xl text-[10px] font-black uppercase tracking-widest">Add New Unit</button>
+                        <div class="glass p-8 rounded-3xl">
+                            <h4 class="font-bold mb-6">Area Distribution</h4>
+                            <canvas id="distributionChart"></canvas>
+                            <div class="mt-8 space-y-3">
+                                <div class="flex justify-between text-xs"><span class="text-gray-400">Kukatpally</span><span class="font-bold">42%</span></div>
+                                <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden"><div class="h-full bg-primary" style="width: 42%"></div></div>
+                                <div class="flex justify-between text-xs mt-2"><span class="text-gray-400">Miyapur</span><span class="font-bold">28%</span></div>
+                                <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden"><div class="h-full bg-secondary" style="width: 28%"></div></div>
+                            </div>
                         </div>
                     </div>
-                    <div id="ambulance-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 overflow-y-auto max-h-[70vh] pr-2 custom-scrollbar">
-                        </div>
-                </div>
+                </section>
 
-                <div id="view-requests" class="page-transition hidden space-y-6">
-                    <div class="p-6 bg-red-600/10 border border-red-600/20 rounded-2xl flex items-center justify-between">
+                <section id="section-ambulances" class="hidden space-y-6">
+                    <div class="flex flex-wrap justify-between items-center gap-4">
+                        <h3 class="text-2xl font-bold">Fleet Management <span class="text-gray-500 text-sm">(24 Active)</span></h3>
+                        <div class="flex gap-2">
+                            <button class="px-4 py-2 glass rounded-xl text-xs font-bold hover:bg-white/10"><i class="fas fa-filter mr-2"></i> Filter</button>
+                            <button class="px-4 py-2 bg-primary rounded-xl text-xs font-bold shadow-lg shadow-primary/20"><i class="fas fa-plus mr-2"></i> Add Unit</button>
+                        </div>
+                    </div>
+                    <div id="ambulance-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        </div>
+                </section>
+
+                <section id="section-requests" class="hidden space-y-6">
+                    <div class="p-6 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-between mb-8 animate-pulse-red">
                         <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center emergency-glow">
-                                <i data-lucide="radio" class="w-6 h-6 text-white animate-pulse"></i>
-                            </div>
+                            <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-white text-xl"><i class="fas fa-satellite-dish"></i></div>
                             <div>
-                                <h4 class="text-lg font-black text-red-500">Critical Channel Open</h4>
-                                <p class="text-xs text-slate-400">Incoming requests from Gachibowli, Kukatpally & Madhapur</p>
+                                <h4 class="font-black text-primary">Emergency Monitoring Active</h4>
+                                <p class="text-xs text-gray-400">Scanning JNTU, KPHB, Miyapur corridors...</p>
                             </div>
                         </div>
-                        <div class="text-right">
-                            <p class="text-2xl font-black text-white" id="live-req-count">24 Active</p>
-                            <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">In Queue</p>
+                        <p class="text-xs font-bold bg-primary px-3 py-1 rounded-full">24 Requests Queued</p>
+                    </div>
+                    <div id="requests-container" class="space-y-4">
+                        </div>
+                </section>
+
+                <section id="section-missed" class="hidden space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="missed-container">
+                        </div>
+                </section>
+
+                <section id="section-tracking" class="hidden h-full">
+                    <div class="h-[600px] glass rounded-3xl overflow-hidden relative map-bg">
+                        <div class="absolute top-1/4 left-1/3 p-4 glass rounded-2xl border-primary/50 flex flex-col items-center animate-bounce shadow-2xl">
+                            <i class="fas fa-truck-medical text-primary text-xl"></i>
+                            <p class="text-[8px] font-black mt-2">AMB-KUK-01</p>
+                        </div>
+                        <div class="absolute bottom-1/3 right-1/4 p-4 glass rounded-2xl border-secondary/50 flex flex-col items-center animate-pulse">
+                            <i class="fas fa-truck-medical text-secondary text-xl"></i>
+                            <p class="text-[8px] font-black mt-2">AMB-KPHB-09</p>
+                        </div>
+                        <div class="absolute top-10 left-10 opacity-20 text-4xl font-black uppercase pointer-events-none">JNTU METRO</div>
+                        <div class="absolute bottom-20 right-20 opacity-20 text-4xl font-black uppercase pointer-events-none">MIYAPUR X ROADS</div>
+                        <div class="absolute top-1/2 right-1/4 opacity-20 text-4xl font-black uppercase pointer-events-none">KPHB 5TH PHASE</div>
+                        
+                        <div class="absolute bottom-6 left-6 right-6 lg:left-auto lg:w-96 glass p-6 rounded-2xl border-white/10">
+                            <h4 class="font-bold mb-4">Active Trip: #8821</h4>
+                            <div class="flex items-center gap-4 mb-4">
+                                <img src="https://ui-avatars.com/api/?name=Karan+S&background=007AFF" class="w-10 h-10 rounded-full" alt="">
+                                <div>
+                                    <p class="text-xs font-bold">Driver: Karan Singh</p>
+                                    <p class="text-[10px] text-emerald-500 font-bold">ETA: 2.5 mins (JNTU Metro)</p>
+                                </div>
+                            </div>
+                            <button onclick="window.location.href='tel:8978257449'" class="w-full bg-secondary py-3 rounded-xl text-xs font-bold">Call Driver</button>
                         </div>
                     </div>
-                    <div id="requests-list" class="space-y-4 overflow-y-auto max-h-[65vh] pr-2 custom-scrollbar">
-                        </div>
-                </div>
+                </section>
 
-                <div id="view-missed" class="page-transition hidden space-y-6">
-                    <div id="missed-alerts-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        </div>
-                </div>
-
-                <div id="view-tracking" class="page-transition hidden h-full flex flex-col gap-6">
-                    <div class="flex-1 glass-panel map-grid relative overflow-hidden group">
-                        <div id="map-simulation" class="w-full h-full relative p-10">
-                            <div id="marker-1" class="absolute top-1/4 left-1/4 transition-all duration-[3000ms] flex flex-col items-center group">
-                                <div class="w-8 h-8 bg-emerald-500 rounded-lg shadow-lg flex items-center justify-center text-white border-2 border-slate-900 group-hover:scale-110 transition-transform">
-                                    <i data-lucide="navigation" class="w-4 h-4 rotate-45"></i>
-                                </div>
-                                <span class="mt-2 bg-slate-900 px-2 py-1 rounded text-[8px] font-black border border-white/10">AMB-9921 (EN ROUTE)</span>
-                            </div>
-                            <div id="marker-2" class="absolute bottom-1/3 right-1/4 transition-all duration-[4000ms] flex flex-col items-center">
-                                <div class="w-8 h-8 bg-blue-500 rounded-lg shadow-lg flex items-center justify-center text-white border-2 border-slate-900">
-                                    <i data-lucide="navigation" class="w-4 h-4 rotate-180"></i>
-                                </div>
-                                <span class="mt-2 bg-slate-900 px-2 py-1 rounded text-[8px] font-black border border-white/10">AMB-4402 (NEAR)</span>
-                            </div>
-                        </div>
-                        <div class="absolute bottom-6 left-6 right-6 flex gap-4">
-                            <div class="glass-panel flex-1 p-4 bg-slate-950/80 backdrop-blur-3xl border-white/10 flex items-center justify-between">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center text-red-500">
-                                        <i data-lucide="message-square" class="w-5 h-5"></i>
-                                    </div>
-                                    <input type="text" id="quick-msg" placeholder="Broadcast to all en-route fleet..." class="bg-transparent outline-none text-xs w-96">
-                                </div>
-                                <button onclick="sendGlobalMsg()" class="bg-blue-600 px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-blue-700">Broadcast</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="view-settlements" class="page-transition hidden space-y-8">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div class="glass-panel p-8 bg-emerald-600/5">
-                            <p class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Hospital Collection (Total)</p>
-                            <h3 class="text-4xl font-black">₹4,28,400</h3>
-                            <p class="text-[10px] text-emerald-500 font-bold mt-2">Cash & Digital Integrated</p>
-                        </div>
-                        <div class="glass-panel p-8 bg-red-600/5">
-                            <p class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">ResQ Commission (15%)</p>
-                            <h3 class="text-4xl font-black text-red-500">₹64,260</h3>
-                            <p class="text-[10px] text-red-500 font-bold mt-2">Due by 10th March</p>
-                        </div>
-                        <div class="glass-panel p-8 flex flex-col justify-center">
-                            <button onclick="triggerPayment()" class="w-full py-4 btn-premium rounded-xl font-black text-xs uppercase tracking-widest">Release Payment to ResQ</button>
-                        </div>
-                    </div>
-                    <div class="glass-panel overflow-hidden border-white/5">
-                        <table class="w-full text-left">
-                            <thead class="bg-white/5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
-                                <tr>
-                                    <th class="px-8 py-4">Transaction Ref</th>
-                                    <th class="px-8 py-4">Patient Name</th>
-                                    <th class="px-8 py-4">Total Bill</th>
-                                    <th class="px-8 py-4">ResQ 15%</th>
-                                    <th class="px-8 py-4">Status</th>
+                <section id="section-drivers" class="hidden space-y-6">
+                    <div class="glass rounded-3xl overflow-hidden">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-white/5 text-[10px] uppercase tracking-widest text-gray-500 font-black">
+                                    <th class="px-6 py-4">Driver Name</th>
+                                    <th class="px-6 py-4">Current Area</th>
+                                    <th class="px-6 py-4">Trips Today</th>
+                                    <th class="px-6 py-4">Rating</th>
+                                    <th class="px-6 py-4">Status</th>
+                                    <th class="px-6 py-4 text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="txn-table" class="divide-y divide-white/5 text-xs">
+                            <tbody id="drivers-table-body" class="text-sm">
                                 </tbody>
                         </table>
                     </div>
-                </div>
+                </section>
+
+                <section id="section-patients" class="hidden space-y-6">
+                    <div class="glass rounded-3xl overflow-x-auto hide-scroll">
+                        <table class="w-full text-left min-w-[800px]">
+                            <thead class="bg-white/5">
+                                <tr class="text-[10px] uppercase font-bold text-gray-500">
+                                    <th class="px-8 py-5">Case ID</th>
+                                    <th class="px-8 py-5">Patient Name</th>
+                                    <th class="px-8 py-5">Emergency Type</th>
+                                    <th class="px-8 py-5">Pickup Area</th>
+                                    <th class="px-8 py-5">Timestamp</th>
+                                    <th class="px-8 py-5">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="patients-table-body" class="divide-y divide-white/5">
+                                </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="section-settlements" class="hidden space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="glass p-8 rounded-3xl bg-emerald-500/5 border-emerald-500/20">
+                            <p class="text-xs font-bold text-gray-500 mb-2 uppercase">Net Collected</p>
+                            <h2 class="text-4xl font-black">₹3,42,100</h2>
+                            <p class="text-[10px] text-emerald-500 mt-2 font-bold">Total earnings this month</p>
+                        </div>
+                        <div class="glass p-8 rounded-3xl bg-primary/5 border-primary/20">
+                            <p class="text-xs font-bold text-gray-500 mb-2 uppercase">ResQ Commission (15%)</p>
+                            <h2 class="text-4xl font-black text-primary">₹51,315</h2>
+                            <p class="text-[10px] text-gray-500 mt-2 font-bold italic">Due on 10th March</p>
+                        </div>
+                        <div class="glass p-8 rounded-3xl flex items-center justify-center">
+                            <button onclick="simulatePayment()" class="px-8 py-4 bg-primary rounded-2xl font-black text-sm shadow-xl shadow-primary/20 hover:scale-105 transition-all">Release Payment</button>
+                        </div>
+                    </div>
+                    <div class="glass rounded-3xl p-6">
+                        <h4 class="font-bold mb-4">Transaction History</h4>
+                        <div id="txn-list" class="space-y-4">
+                            </div>
+                    </div>
+                </section>
+
+                <section id="section-reports" class="hidden space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="glass p-6 rounded-2xl flex flex-col items-center justify-center text-center gap-4 hover:border-primary/50 transition-all group cursor-pointer" onclick="exportData('PDF')">
+                            <i class="fas fa-file-pdf text-4xl text-red-500 group-hover:scale-110 transition-transform"></i>
+                            <span class="text-xs font-black">Daily Ops Report (PDF)</span>
+                        </div>
+                        <div class="glass p-6 rounded-2xl flex flex-col items-center justify-center text-center gap-4 hover:border-emerald-500/50 transition-all group cursor-pointer" onclick="exportData('Excel')">
+                            <i class="fas fa-file-excel text-4xl text-emerald-500 group-hover:scale-110 transition-transform"></i>
+                            <span class="text-xs font-black">Revenue Analytics (XLSX)</span>
+                        </div>
+                        <div class="glass p-6 rounded-2xl flex flex-col items-center justify-center text-center gap-4 hover:border-secondary/50 transition-all group cursor-pointer" onclick="exportData('CSV')">
+                            <i class="fas fa-file-csv text-4xl text-secondary group-hover:scale-110 transition-transform"></i>
+                            <span class="text-xs font-black">Driver Performance (CSV)</span>
+                        </div>
+                        <div class="glass p-6 rounded-2xl flex flex-col items-center justify-center text-center gap-4 hover:border-accent/50 transition-all group cursor-pointer" onclick="exportData('Archive')">
+                            <i class="fas fa-folder-archive text-4xl text-accent group-hover:scale-110 transition-transform"></i>
+                            <span class="text-xs font-black">Quarterly Audit Log</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="section-settings" class="hidden max-w-2xl space-y-8">
+                    <div class="glass p-8 rounded-3xl space-y-6">
+                        <h4 class="font-bold border-b border-white/5 pb-4">Hospital Availability</h4>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-bold">Status: <span id="hosp-status" class="text-emerald-500">ONLINE</span></p>
+                                <p class="text-[10px] text-gray-500">Currently receiving emergency broadcasts from ResQ</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="toggle-hosp" checked class="sr-only peer" onchange="toggleHospital()">
+                                <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="glass p-8 rounded-3xl space-y-6">
+                        <h4 class="font-bold border-b border-white/5 pb-4">Notification Preferences</h4>
+                        <div class="space-y-4">
+                            <label class="flex items-center gap-4 cursor-pointer"><input type="checkbox" checked class="accent-primary"> <span class="text-xs font-bold">New Emergency Request Sounds</span></label>
+                            <label class="flex items-center gap-4 cursor-pointer"><input type="checkbox" checked class="accent-primary"> <span class="text-xs font-bold">Arrival Alerts (200m Distance)</span></label>
+                            <label class="flex items-center gap-4 cursor-pointer"><input type="checkbox" class="accent-primary"> <span class="text-xs font-bold">Weekly Performance Summary</span></label>
+                        </div>
+                    </div>
+                    <button onclick="toast('Settings Updated Successfully', 'success')" class="bg-white/5 border border-white/10 px-6 py-3 rounded-xl text-xs font-bold hover:bg-white/10 transition-all">Save Changes</button>
+                </section>
 
             </div>
         </main>
     </div>
 
-    <div id="arrival-alert" class="fixed inset-0 z-[2000] hidden items-center justify-center p-6">
-        <div class="absolute inset-0 bg-red-950/40 backdrop-blur-md"></div>
-        <div class="glass-panel p-12 max-w-lg w-full text-center relative emergency-glow border-4 border-red-500 animate-bounce">
-            <i data-lucide="triangle-alert" class="w-16 h-16 text-white mx-auto mb-6 animate-pulse"></i>
-            <h2 class="text-5xl font-black text-white tracking-tighter uppercase mb-4">Immediate Arrival</h2>
-            <p class="text-xl font-bold text-red-200 mb-2">Ambulance AMB-4402 is 200m away!</p>
-            <p class="text-slate-300 font-medium italic">Case: Grade-A Cardiac Emergency. Patient Rahul Sharma. Prepare Trauma Bay 4 & Full Stretcher Team immediately.</p>
-            <button onclick="dismissArrival()" class="mt-10 px-12 py-5 bg-white text-red-600 font-black uppercase tracking-widest rounded-2xl hover:bg-slate-100 transition-all shadow-2xl">Acknowledge Alert</button>
+    <div class="fixed bottom-6 right-6 z-[60] flex flex-col gap-3">
+        <div id="arrival-toast" class="hidden glass p-4 rounded-2xl border-primary animate-bounce shadow-2xl items-center gap-4">
+            <div class="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center text-primary"><i class="fas fa-ambulance"></i></div>
+            <div>
+                <p class="text-[10px] font-black text-primary uppercase">Immediate Arrival</p>
+                <p class="text-xs font-bold">Unit AMB-9921 is 150m away</p>
+            </div>
+            <button onclick="this.parentElement.style.display='none'" class="text-gray-500 text-xs"><i class="fas fa-times"></i></button>
         </div>
+        <button onclick="window.location.href='tel:8978257449'" class="w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-all border-4 border-white/10">
+            <i class="fas fa-phone-alt text-xl"></i>
+        </button>
     </div>
 
-    <div id="toast-container" class="fixed bottom-8 right-8 z-[3000] flex flex-col gap-4"></div>
+    <div id="toast-root" class="fixed top-8 right-8 z-[200] space-y-3"></div>
 
     <script>
-        // --- AUTH & PERSISTENCE ---
-        const loginContainer = document.getElementById('login-container');
-        const dashboardContainer = document.getElementById('dashboard-container');
+        // --- CORE LOGIC ---
+        const AREAS = ["Kukatpally", "JNTU Metro", "KPHB 5th Phase", "Pragathi Nagar", "Miyapur X Roads", "Kukatpally Housing Board", "JNTU", "Miyapur", "KPHB"];
+        const DRIVER_NAMES = ["Karan S.", "Rahul V.", "Imran K.", "Suresh R.", "David P.", "Anil M.", "Vikram T.", "Prasad L.", "Shiva B.", "George W.", "Prakash J.", "Arjun K.", "Sunil D.", "Ramesh G.", "Abhi R."];
+        const PATIENT_NAMES = ["Ananya Reddy", "Sameer Ahmed", "Priya Sharma", "Venkat Rao", "Sita Kumari", "Rajesh Varma", "Karthik Raja", "Meera Nair", "Amit Saxena", "Nithin G.", "Deepak L.", "Aruna B.", "Raghu T.", "Sneha M.", "Vijay P."];
 
         window.onload = () => {
             if(localStorage.getItem('resq_session') === 'active') {
-                showDashboard();
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('main-app').classList.remove('hidden');
+                initApp();
             }
-            lucide.createIcons();
         };
 
-        function showCreds() { document.getElementById('creds-hint').classList.toggle('hidden'); }
-
         function handleLogin() {
-            const e = document.getElementById('email').value;
-            const p = document.getElementById('password').value;
+            const e = document.getElementById('login-email').value;
+            const p = document.getElementById('login-pass').value;
             if(e === 'hospital@resq.com' && p === '123456') {
                 localStorage.setItem('resq_session', 'active');
-                showDashboard();
+                location.reload();
             } else {
-                toast("Invalid Master Authorization Credentials", "error");
+                toast("Invalid Master Credentials", "error");
             }
-        }
-
-        function showDashboard() {
-            loginContainer.classList.add('hidden');
-            dashboardContainer.classList.remove('hidden');
-            setTimeout(() => {
-                dashboardContainer.classList.replace('opacity-0', 'opacity-100');
-                initCharts();
-                initData();
-                startCounters();
-                simulateTracking();
-                scheduleEmergency();
-            }, 100);
         }
 
         function logout() {
@@ -453,241 +404,250 @@
             location.reload();
         }
 
-        // --- NAVIGATION ---
-        function navTo(pageId) {
-            document.querySelectorAll('.page-transition').forEach(p => p.classList.add('hidden'));
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('sidebar-active', 'text-primary'));
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.add('text-slate-400'));
+        function toggleCreds() { document.getElementById('creds-hint').classList.toggle('hidden'); }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+
+        function showSection(id) {
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(`section-${id}`).classList.remove('hidden');
             
-            document.getElementById(`view-${pageId}`).classList.remove('hidden');
-            document.getElementById(`nav-${pageId}`).classList.add('sidebar-active');
-            document.getElementById(`nav-${pageId}`).classList.remove('text-slate-400');
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+            document.getElementById(`nav-${id}`).classList.add('active');
             
-            document.getElementById('view-title').innerText = pageId.charAt(0).toUpperCase() + pageId.slice(1) + " Control";
-            lucide.createIcons();
+            document.getElementById('section-title').innerText = id.charAt(0).toUpperCase() + id.slice(1);
+            if(window.innerWidth < 1024) toggleSidebar();
         }
 
-        // --- DATA FACTORIES ---
-        const LOCATIONS = ["Madhapur", "Gachibowli", "Jubilee Hills", "Banjara Hills", "Kukatpally", "Hitech City", "Miyapur", "Kondapur", "Tellapur", "Manikonda"];
-        const PATIENTS = ["Rahul Sharma", "Ananya Reddy", "Suresh Kumar", "Priya Das", "Vikram Rathore", "Sita Devi", "Karthik Raja", "Meera Nair", "Amit Saxena", "Arjun Varma"];
-        const DRIVERS = ["Karan S.", "John D.", "Prakash R.", "Sunil G.", "Ahmed K.", "Robert M.", "Sanjay L.", "David P.", "Ali B.", "Rajesh M."];
+        // --- DATA INJECTION ---
+        function initApp() {
+            initCharts();
+            populateAmbulances();
+            populateRequests();
+            populateMissed();
+            populateDrivers();
+            populatePatients();
+            populateSettlements();
+            simulateArrival();
+        }
 
-        function initData() {
-            // Ambulances (20+)
-            const ambGrid = document.getElementById('ambulance-grid');
-            let ambHTML = '';
+        function populateAmbulances() {
+            const grid = document.getElementById('ambulance-grid');
+            let html = '';
             for(let i=1; i<=24; i++) {
-                const status = i % 3 === 0 ? 'Busy' : (i % 5 === 0 ? 'Offline' : 'Available');
-                const color = status === 'Available' ? 'emerald' : (status === 'Busy' ? 'amber' : 'slate');
-                ambHTML += `
-                <div class="glass-panel p-5 group hover:border-red-500/50 transition-colors">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center group-hover:bg-red-500 transition-colors">
-                            <i data-lucide="truck" class="w-5 h-5 text-slate-400 group-hover:text-white"></i>
+                const area = AREAS[i % AREAS.length];
+                const status = i % 5 === 0 ? 'Busy' : (i % 7 === 0 ? 'Offline' : 'Available');
+                const color = status === 'Available' ? 'emerald' : (status === 'Busy' ? 'primary' : 'gray-500');
+                html += `
+                    <div class="glass p-5 rounded-2xl hover:border-primary/40 transition-all">
+                        <div class="flex justify-between mb-4">
+                            <span class="text-[9px] font-black bg-${color}/10 text-${color} px-2 py-0.5 rounded uppercase tracking-widest">${status}</span>
+                            <i class="fas fa-ellipsis-v text-gray-600 text-[10px]"></i>
                         </div>
-                        <span class="text-[8px] font-black px-2 py-1 rounded bg-${color}-500/10 text-${color}-500 uppercase tracking-widest border border-${color}-500/20">${status}</span>
-                    </div>
-                    <h4 class="font-black text-sm">AMB-${9000 + i}</h4>
-                    <p class="text-[10px] text-slate-500 mb-4">ICU Grade • ${LOCATIONS[i % 10]}</p>
-                    <div class="flex items-center gap-3 p-2 bg-white/5 rounded-lg border border-white/5 mb-4">
-                        <img src="https://ui-avatars.com/api/?name=${DRIVERS[i % 10]}&background=random" class="w-6 h-6 rounded-md">
-                        <span class="text-[10px] font-bold text-slate-300">${DRIVERS[i % 10]}</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button class="text-[8px] font-black py-2 bg-white/5 rounded-lg uppercase tracking-widest hover:bg-white/10">Track</button>
-                        <button class="text-[8px] font-black py-2 border border-white/10 rounded-lg uppercase tracking-widest hover:border-red-500">Config</button>
-                    </div>
-                </div>`;
-            }
-            ambGrid.innerHTML = ambHTML;
-
-            // Requests (30+)
-            const reqList = document.getElementById('requests-list');
-            let reqHTML = '';
-            for(let i=1; i<=30; i++) {
-                const critical = i % 4 === 0;
-                reqHTML += `
-                <div class="glass-panel p-6 flex items-center justify-between border-l-4 ${critical ? 'border-l-red-500 animate-pulse' : 'border-l-blue-500'} group hover:bg-white/5 transition-all">
-                    <div class="flex items-center gap-6">
-                        <div class="w-12 h-12 rounded-full glass-panel flex items-center justify-center font-black text-slate-400 border-white/10">${i}</div>
-                        <div>
-                            <div class="flex items-center gap-3">
-                                <h5 class="font-black text-lg">${PATIENTS[i % 10]}</h5>
-                                ${critical ? '<span class="bg-red-500 text-white text-[8px] font-black px-2 py-0.5 rounded uppercase">Critical</span>' : ''}
+                        <h4 class="font-black text-sm mb-1">AMB-HYD-${1000 + i}</h4>
+                        <p class="text-[10px] text-gray-500 mb-4 italic font-medium"><i class="fas fa-map-marker-alt mr-1"></i> ${area}</p>
+                        <div class="flex items-center gap-3 pt-4 border-t border-white/5">
+                            <img src="https://ui-avatars.com/api/?name=${DRIVER_NAMES[i%15]}&background=random" class="w-8 h-8 rounded-lg">
+                            <div>
+                                <p class="text-[10px] font-bold">${DRIVER_NAMES[i%15]}</p>
+                                <p class="text-[8px] text-gray-500">Tier-1 Responder</p>
                             </div>
-                            <p class="text-xs text-slate-400 font-medium">Location: ${LOCATIONS[i % 10]} • <span class="text-blue-400">${(i * 0.4).toFixed(1)} km away</span></p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-4">
-                        <div class="text-right">
-                            <p class="text-[8px] font-black text-slate-500 uppercase tracking-widest">Est. Arrival</p>
-                            <p class="text-sm font-black text-emerald-500">${i + 4} Mins</p>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="acceptReq(this)" class="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center border border-emerald-500/20 hover:bg-emerald-500 hover:text-white transition-all"><i data-lucide="check" class="w-5 h-5"></i></button>
-                            <button onclick="rejectReq(this)" class="w-10 h-10 bg-white/5 text-slate-500 rounded-xl flex items-center justify-center border border-white/10 hover:bg-red-500 hover:text-white transition-all"><i data-lucide="x" class="w-5 h-5"></i></button>
-                            <button onclick="window.location.href='tel:8978257449'" class="w-10 h-10 bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center border border-blue-500/20 hover:bg-blue-500 hover:text-white transition-all"><i data-lucide="phone" class="w-5 h-5"></i></button>
-                        </div>
-                    </div>
-                </div>`;
+                `;
             }
-            reqList.innerHTML = reqHTML;
-
-            // Missed Alerts (10+)
-            const missedList = document.getElementById('missed-alerts-list');
-            let missedHTML = '';
-            for(let i=1; i<=12; i++) {
-                missedHTML += `
-                <div class="glass-panel p-6 border-2 border-red-500/30 bg-red-500/5 emergency-glow">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="text-[10px] font-black text-red-500 uppercase tracking-widest">Missed Emergency</span>
-                        <p class="text-[10px] font-black text-slate-500">2h ago</p>
-                    </div>
-                    <h5 class="font-black text-lg mb-1">${PATIENTS[(i+3)%10]}</h5>
-                    <p class="text-xs text-slate-400 mb-6">Request from ${LOCATIONS[i%10]} went unassigned for 180s.</p>
-                    <div class="flex gap-2">
-                        <button onclick="toast('Attempting Reassignment...', 'success')" class="flex-1 py-3 bg-red-600 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-red-500/20">Reassign Now</button>
-                        <button onclick="window.location.href='tel:8978257449'" class="w-12 bg-white/5 rounded-xl flex items-center justify-center border border-white/10"><i data-lucide="phone" class="w-5 h-5"></i></button>
-                    </div>
-                </div>`;
-            }
-            missedList.innerHTML = missedHTML;
-
-            // Top Performers
-            const driversList = document.getElementById('top-drivers');
-            driversList.innerHTML = [0,1,2,3].map(i => `
-                <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
-                    <div class="flex items-center gap-4">
-                        <div class="text-xs font-black text-slate-600">#${i+1}</div>
-                        <img src="https://ui-avatars.com/api/?name=${DRIVERS[i]}&background=random" class="w-10 h-10 rounded-lg">
-                        <div>
-                            <p class="text-xs font-black uppercase">${DRIVERS[i]}</p>
-                            <p class="text-[10px] text-emerald-500 font-bold">${140 - (i*12)} Trips • 4.${9-i} <i data-lucide="star" class="w-2 h-2 inline fill-current"></i></p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-xs font-black">₹${(12000 - (i*1500)).toLocaleString()}</p>
-                        <p class="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Bonus Rec.</p>
-                    </div>
-                </div>
-            `).join('');
-
-            // Transactions
-            const txnList = document.getElementById('txn-table');
-            let txnHTML = '';
-            for(let i=1; i<=15; i++) {
-                txnHTML += `
-                <tr class="hover:bg-white/[0.02] transition-colors">
-                    <td class="px-8 py-4 font-mono text-blue-400">TXN-${2000 + i}</td>
-                    <td class="px-8 py-4 font-bold text-slate-300">${PATIENTS[i % 10]}</td>
-                    <td class="px-8 py-4 font-black">₹1,200</td>
-                    <td class="px-8 py-4 text-red-400 font-black">₹180</td>
-                    <td class="px-8 py-4"><span class="px-2 py-1 rounded bg-emerald-500/10 text-emerald-500 text-[8px] font-black uppercase">Collected</span></td>
-                </tr>`;
-            }
-            txnList.innerHTML = txnHTML;
-
-            lucide.createIcons();
+            grid.innerHTML = html;
         }
 
-        // --- INTERACTIVE ELEMENTS ---
+        function populateRequests() {
+            const container = document.getElementById('requests-container');
+            let html = '';
+            for(let i=1; i<=22; i++) {
+                const area = AREAS[i % AREAS.length];
+                html += `
+                    <div class="glass p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4 group hover:bg-white/5 transition-all">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 glass rounded-xl flex items-center justify-center font-bold text-gray-500">#${200 + i}</div>
+                            <div>
+                                <h5 class="text-sm font-bold">${PATIENT_NAMES[i%15]}</h5>
+                                <p class="text-[10px] text-gray-400 font-medium">${area} • 2.4 km away</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-6">
+                            <div class="text-right">
+                                <p class="text-[9px] text-gray-500 uppercase font-black tracking-widest">Est. Pickup</p>
+                                <p class="text-xs font-bold text-primary">04:3${i%9} mins</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="acceptReq(this)" class="w-9 h-9 bg-emerald-500/10 text-emerald-500 rounded-lg border border-emerald-500/20 hover:bg-emerald-500 hover:text-white transition-all"><i class="fas fa-check"></i></button>
+                                <button onclick="rejectReq(this)" class="w-9 h-9 bg-primary/10 text-primary rounded-lg border border-primary/20 hover:bg-primary hover:text-white transition-all"><i class="fas fa-times"></i></button>
+                                <button onclick="window.location.href='tel:8978257449'" class="w-9 h-9 bg-secondary/10 text-secondary rounded-lg border border-secondary/20 hover:bg-secondary hover:text-white transition-all"><i class="fas fa-phone"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        function populateMissed() {
+            const container = document.getElementById('missed-container');
+            let html = '';
+            for(let i=1; i<=12; i++) {
+                const area = AREAS[i % AREAS.length];
+                html += `
+                    <div class="glass p-6 rounded-2xl border-l-4 border-primary bg-primary/5">
+                        <div class="flex justify-between text-[10px] font-black text-gray-500 uppercase tracking-widest mb-4">
+                            <span>Missed Alert</span>
+                            <span class="text-primary">${i * 3}m ago</span>
+                        </div>
+                        <h4 class="font-bold mb-1">${PATIENT_NAMES[(i+2)%15]}</h4>
+                        <p class="text-xs text-gray-400 mb-6 font-medium">Request from ${area} expired before response.</p>
+                        <div class="flex gap-3">
+                            <button onclick="toast('Reassigning emergency...', 'success')" class="flex-1 bg-primary py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20">Force Reassign</button>
+                            <button onclick="window.location.href='tel:8978257449'" class="w-12 glass rounded-xl border-white/10 flex items-center justify-center hover:bg-white/10"><i class="fas fa-phone text-xs"></i></button>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        function populateDrivers() {
+            const tbody = document.getElementById('drivers-table-body');
+            let html = '';
+            for(let i=0; i<15; i++) {
+                const status = i % 4 === 0 ? 'On Trip' : 'Awaiting';
+                html += `
+                    <tr class="border-t border-white/5 hover:bg-white/[0.02] transition-colors">
+                        <td class="px-6 py-4 flex items-center gap-3">
+                            <img src="https://ui-avatars.com/api/?name=${DRIVER_NAMES[i]}&background=random" class="w-8 h-8 rounded-lg">
+                            <span class="font-bold">${DRIVER_NAMES[i]}</span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-400 text-xs">${AREAS[i % AREAS.length]}</td>
+                        <td class="px-6 py-4 font-bold">${12 + i}</td>
+                        <td class="px-6 py-4"><i class="fas fa-star text-accent mr-1"></i> 4.${9 - (i % 3)}</td>
+                        <td class="px-6 py-4"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${status === 'On Trip' ? 'bg-primary/10 text-primary' : 'bg-emerald-500/10 text-emerald-500'}">${status}</span></td>
+                        <td class="px-6 py-4 text-right"><button onclick="window.location.href='tel:8978257449'" class="text-xs text-secondary font-bold">Call</button></td>
+                    </tr>
+                `;
+            }
+            tbody.innerHTML = html;
+        }
+
+        function populatePatients() {
+            const tbody = document.getElementById('patients-table-body');
+            let html = '';
+            for(let i=1; i<=40; i++) {
+                const type = i % 3 === 0 ? 'Cardiac' : (i % 5 === 0 ? 'Accident' : 'Respiratory');
+                html += `
+                    <tr>
+                        <td class="px-8 py-4 font-mono text-[10px] text-gray-500">RESQ-${8800 + i}</td>
+                        <td class="px-8 py-4 font-bold text-xs">${PATIENT_NAMES[i % 15]}</td>
+                        <td class="px-8 py-4"><span class="text-[10px] font-black text-gray-400 uppercase tracking-tighter">${type}</span></td>
+                        <td class="px-8 py-4 text-xs italic font-medium">${AREAS[i % AREAS.length]}</td>
+                        <td class="px-8 py-4 text-[10px] text-gray-500 font-bold uppercase">Today, 1${i%9}:30 PM</td>
+                        <td class="px-8 py-4"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-white/5 text-gray-400 uppercase">Closed</span></td>
+                    </tr>
+                `;
+            }
+            tbody.innerHTML = html;
+        }
+
+        function populateSettlements() {
+            const container = document.getElementById('txn-list');
+            let html = '';
+            for(let i=1; i<=8; i++) {
+                html += `
+                    <div class="flex items-center justify-between p-4 border border-white/5 rounded-2xl hover:bg-white/5 transition-colors">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-emerald-500"><i class="fas fa-arrow-down-long"></i></div>
+                            <div>
+                                <p class="text-xs font-bold">Patient: ${PATIENT_NAMES[i % 15]}</p>
+                                <p class="text-[10px] text-gray-500 uppercase tracking-widest font-black">Ref: TXN-99${i}21</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-black">₹1,850</p>
+                            <p class="text-[9px] text-primary font-bold">Comm: ₹277.5</p>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        // --- INTERACTION LOGIC ---
         function toast(msg, type) {
-            const container = document.getElementById('toast-container');
+            const root = document.getElementById('toast-root');
             const el = document.createElement('div');
-            el.className = `glass-panel p-4 min-w-[300px] flex items-center gap-4 border-l-4 ${type === 'error' ? 'border-l-red-500' : 'border-l-emerald-500'} animate-slideUp`;
+            el.className = `glass p-4 min-w-[300px] flex items-center gap-4 border-l-4 rounded-xl shadow-2xl animate-bounce ${type === 'error' ? 'border-primary' : 'border-emerald-500'}`;
             el.innerHTML = `
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center ${type === 'error' ? 'bg-red-500/20 text-red-500' : 'bg-emerald-500/20 text-emerald-500'}">
-                    <i data-lucide="${type === 'error' ? 'circle-x' : 'circle-check'}" class="w-5 h-5"></i>
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center ${type === 'error' ? 'bg-primary/20 text-primary' : 'bg-emerald-500/20 text-emerald-500'}">
+                    <i class="fas ${type === 'error' ? 'fa-times' : 'fa-check'} text-xs"></i>
                 </div>
                 <div class="flex-1">
                     <p class="text-xs font-black uppercase tracking-widest">${msg}</p>
                 </div>
             `;
-            container.appendChild(el);
-            lucide.createIcons();
+            root.appendChild(el);
             setTimeout(() => el.remove(), 4000);
         }
 
         function acceptReq(btn) {
-            const row = btn.closest('.glass-panel');
-            row.innerHTML = `<div class="w-full text-center py-4 text-emerald-500 font-black uppercase tracking-[0.3em] animate-pulse">Request Assigned to Unit AMB-9921</div>`;
-            toast("Emergency Response Initiated", "success");
-            setTimeout(() => row.remove(), 2000);
+            const card = btn.closest('.glass');
+            card.innerHTML = `<div class="w-full text-center py-4 text-emerald-500 font-bold animate-pulse uppercase text-xs tracking-[0.2em]"><i class="fas fa-check-circle mr-2"></i> Dispatched Unit AMB-KUK-09</div>`;
+            toast("Emergency Unit Dispatched Successfully", "success");
+            setTimeout(() => card.remove(), 2500);
         }
 
         function rejectReq(btn) {
-            const row = btn.closest('.glass-panel');
-            row.classList.add('opacity-50', 'translate-x-full');
-            toast("Request Reassigned to Next Closest Hospital", "error");
-            setTimeout(() => row.remove(), 500);
+            const card = btn.closest('.glass');
+            card.style.opacity = '0.5';
+            card.style.transform = 'scale(0.95)';
+            toast("Request rerouted to next nearest hospital", "error");
+            setTimeout(() => card.remove(), 500);
         }
 
-        function triggerPayment() {
-            toast("Initiating Settlement Release to ResQ...", "success");
-            setTimeout(() => toast("Settlement TXN-4491 Released Successfully", "success"), 2000);
+        function simulatePayment() {
+            toast("Initiating Secure Bank Transfer to ResQ Account...", "success");
+            setTimeout(() => toast("₹51,315.00 Settled Successfully. Ref ID: 299102", "success"), 2500);
         }
 
-        function sendGlobalMsg() {
-            const val = document.getElementById('quick-msg').value;
-            if(!val) return;
-            toast("Command Broadcasted to Fleet", "success");
-            document.getElementById('quick-msg').value = '';
+        function exportData(format) {
+            toast(`Generating ${format} document. Downloading...`, "success");
         }
 
-        function startCounters() {
-            const counters = document.querySelectorAll('.counter');
-            counters.forEach(counter => {
-                const target = +counter.getAttribute('data-target');
-                let count = 0;
-                const update = () => {
-                    const inc = target / 50;
-                    if (count < target) {
-                        count += inc;
-                        counter.innerText = Math.ceil(count).toLocaleString();
-                        setTimeout(update, 20);
-                    } else {
-                        counter.innerText = target.toLocaleString();
-                    }
-                };
-                update();
-            });
+        function toggleHospital() {
+            const isChecked = document.getElementById('toggle-hosp').checked;
+            const statusText = document.getElementById('hosp-status');
+            if(isChecked) {
+                statusText.innerText = 'ONLINE';
+                statusText.className = 'text-emerald-500';
+                toast("Hospital Status: ONLINE (Receiving Alerts)", "success");
+            } else {
+                statusText.innerText = 'OFFLINE';
+                statusText.className = 'text-primary';
+                toast("Hospital Status: OFFLINE (Broadcasts Suspended)", "error");
+            }
         }
 
-        // --- SIMULATIONS ---
-        function simulateTracking() {
-            const m1 = document.getElementById('marker-1');
-            const m2 = document.getElementById('marker-2');
-            let t = 0;
-            setInterval(() => {
-                t += 0.05;
-                if(m1) m1.style.left = (25 + Math.sin(t) * 10) + '%';
-                if(m2) m2.style.bottom = (33 + Math.cos(t) * 15) + '%';
-            }, 100);
-        }
-
-        function scheduleEmergency() {
+        function simulateArrival() {
             setTimeout(() => {
-                document.getElementById('arrival-alert').classList.remove('hidden');
-                document.getElementById('arrival-alert').classList.add('flex');
-                lucide.createIcons();
-            }, 15000);
-        }
-
-        function dismissArrival() {
-            document.getElementById('arrival-alert').classList.add('hidden');
-            toast("Arrival Acknowledged - Medical Team Alerted", "success");
+                document.getElementById('arrival-toast').classList.remove('hidden');
+                document.getElementById('arrival-toast').classList.add('flex');
+            }, 10000);
         }
 
         // --- CHARTS ---
         function initCharts() {
-            const ctx = document.getElementById('trendChart').getContext('2d');
-            new Chart(ctx, {
+            const ctx1 = document.getElementById('areaChart').getContext('2d');
+            new Chart(ctx1, {
                 type: 'line',
                 data: {
                     labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '23:59'],
                     datasets: [{
-                        label: 'Active Emergencies',
-                        data: [5, 2, 12, 18, 14, 28, 15],
+                        label: 'Active Requests',
+                        data: [4, 2, 18, 24, 21, 35, 12],
                         borderColor: '#FF3B30',
                         backgroundColor: 'rgba(255, 59, 48, 0.1)',
                         fill: true,
@@ -703,6 +663,23 @@
                         y: { display: false },
                         x: { grid: { display: false }, ticks: { color: '#475569', font: { size: 10, weight: 'bold' } } }
                     }
+                }
+            });
+
+            const ctx2 = document.getElementById('distributionChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Kukatpally', 'Miyapur', 'JNTU', 'Pragathi Nagar'],
+                    datasets: [{
+                        data: [42, 28, 15, 15],
+                        backgroundColor: ['#FF3B30', '#007AFF', '#FF9500', '#121418'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    cutout: '80%',
+                    plugins: { legend: { display: false } }
                 }
             });
         }
