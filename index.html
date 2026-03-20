@@ -1,605 +1,577 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ResQ – Hospital Admin Portal</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <style>
-    :root {
-      --primary: #0d6efd;
-      --primary-light: #e7f1ff;
-      --success: #198754;
-      --warning: #ffc107;
-      --danger: #dc3545;
-      --dark: #212529;
-      --gray-100: #f8f9fa;
-      --gray-200: #e9ecef;
-      --gray-300: #dee2e6;
-      --gray-400: #ced4da;
-      --gray-500: #adb5bd;
-      --gray-600: #6c757d;
-      --gray-700: #495057;
-      --gray-800: #343a40;
-      --gray-900: #212529;
-      --shadow-sm: 0 0.25rem 0.7rem rgba(0, 0, 0, 0.05);
-      --shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
-      --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.15);
-      --radius: 0.5rem;
-      --radius-sm: 0.3rem;
-      --radius-lg: 0.8rem;
-      --transition: all 0.2s ease;
-      --border: 1px solid #dee2e6;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: "Inter", sans-serif;
-    }
-
-    html, body {
-      height: 100%;
-      overflow: hidden;
-      background-color: #f4f6f9;
-    }
-
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
-
-    /* LOGIN SCREEN */
-    .login-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: linear-gradient(135deg, #0d6efd, #0b5ed7);
-      padding: 1rem;
-    }
-
-    .login-box {
-      width: 100%;
-      max-width: 420px;
-      background: #ffffff;
-      border-radius: 1rem;
-      box-shadow: var(--shadow-lg);
-      overflow: hidden;
-    }
-
-    .login-header {
-      padding: 1.5rem 1.5rem 1rem;
-      background: #0d6efd;
-      color: #fff;
-      text-align: center;
-    }
-
-    .login-header h2 {
-      font-size: 1.5rem;
-      font-weight: 600;
-    }
-
-    .login-body {
-      padding: 1.5rem;
-    }
-
-    .form-group {
-      margin-bottom: 0.8rem;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: #495057;
-      margin-bottom: 0.3rem;
-    }
-
-    .form-control {
-      width: 100%;
-      padding: 0.7rem 0.8rem;
-      border: 1px solid #ced4da;
-      border-radius: var(--radius-sm);
-      font-size: 0.95rem;
-      transition: border 0.2s;
-    }
-
-    .form-control:focus {
-      outline: none;
-      border-color: #0d6efd;
-      box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
-    }
-
-    .btn {
-      display: inline-block;
-      padding: 0.75rema 1.25rem;
-      border: none;
-      border-radius: var(--radius-sm);
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-
-    .btn-primary {
-      background: #0d6efd;
-      color: #fff;
-    }
-
-    .btn-primary:hover {
-      background: #0b5ed7;
-    }
-
-    .btn-secondary {
-      background: #6c757d;
-      color: #fff;
-    }
-
-    .btn-sm {
-      padding: 0.3rem 0.6rem;
-      font-size: 0.8rem;
-    }
-
-    .alert {
-      padding: 0.7rem 1rem;
-      border-radius: var(--radius-sm);
-      margin-bottom: 0.8rem;
-      font-size: 0.9rem;
-    }
-
-    .alert-danger {
-      background: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-    }
-
-    /* MAIN LAYOUT */
-    .app {
-      display: none;
-      flex-direction: column;
-      height: 100vh;
-    }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.8rem 1.5rem;
-      background: #ffffff;
-      border-bottom: 1px solid #dee2e6;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .topbar-left {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .logo {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: #0d6efd;
-    }
-
-    .topbar-right {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      font-size: 0.9rem;
-    }
-
-    .avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: #0d6efd;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-    }
-
-    .sidebar {
-      width: 260px;
-      background: #212529;
-      color: #adb5bd;
-      padding: 1rem 0;
-      border-right: 1px solid #343a40;
-    }
-
-    .sidebar-brand {
-      padding: 0.8rem 1.2rem;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #f8f9fa;
-      border-left: 3px solid #0d6efd;
-    }
-
-    .sidebar-menu {
-      list-style: none;
-      margin-top: 0.8rem;
-    }
-
-    .sidebar-menu a {
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      padding: 0.75rem 1.2rem;
-      border-radius: 0 1rem 1rem 0;
-      color: #adb5bd;
-      font-size: 0.9rem;
-      transition: var(--transition);
-    }
-
-    .sidebar-menu a:hover,
-    .sidebar-menu a.active {
-      background: #343a40;
-      color: #f8f9fa;
-    }
-
-    .sidebar-menu a.active {
-      border-left: 3px solid #0d6efd;
-    }
-
-    .sidebar-toggle {
-      display: none;
-      background: transparent;
-      border: none;
-      color: #adb5bd;
-      font-size: 1.1rem;
-      cursor: pointer;
-    }
-
-    .main-content {
-      flex: 1;
-      display: flex;
-      overflow: hidden;
-    }
-
-    .content {
-      flex: 1;
-      padding: 1.5rem;
-      overflow-y: auto;
-      background: #f4f6f9;
-    }
-
-    .card {
-      background: #ffffff;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-sm);
-      padding: 1.2rem;
-      margin-bottom: 1.2rem;
-      border: var(--border);
-    }
-
-    .card-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #212529;
-      margin-bottom: 0.8rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .card-title small {
-      font-size: 0.85rem;
-      color: #6c757d;
-    }
-
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.2rem;
-    }
-
-    .stat-card {
-      background: #ffffff;
-      border-radius: var(--radius);
-      padding: 0.9rem 1.1rem;
-      border: var(--border);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .stat-label {
-      font-size: 0.85rem;
-      color: #6c757d;
-      margin-bottom: 0.2rem;
-    }
-
-    .stat-value {
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: #212529;
-    }
-
-    .stat-trend {
-      font-size: 0.8rem;
-      color: var(--success);
-      margin-top: 0.3rem;
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
-
-    .stat-trend i {
-      font-size: 0.7rem;
-    }
-
-    .chart-container {
-      height: 260px;
-      margin-bottom: 1.2rem;
-    }
-
-    .table-responsive {
-      overflow-x: auto;
-    }
-
-    .table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9rem;
-    }
-
-    .table th {
-      background: #f4f6f9;
-      padding: 0.7rem 0.8rem;
-      text-align: left;
-      font-weight: 600;
-      color: #495057;
-      border-bottom: var(--border);
-    }
-
-    .table td {
-      padding: 0.7rem 0.8rem;
-      border-bottom: var(--border);
-    }
-
-    .table tr:last-child td {
-      border-bottom: none;
-    }
-
-    .badge {
-      padding: 0.3rem 0.6rem;
-      border-radius: 1rem;
-      font-size: 0.8rem;
-      font-weight: 600;
-      display: inline-block;
-    }
-
-    .badge-success {
-      background: #d1ecdb;
-      color: #155724;
-    }
-
-    .badge-warning {
-      background: #fff3cd;
-      color: #856404;
-    }
-
-    .badge-danger {
-      background: #f8d7da;
-      color: #721c24;
-    }
-
-    .badge-secondary {
-      background: #e9ecef;
-      color: #495057;
-    }
-
-    .status-dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      margin-right: 0.4rem;
-    }
-
-    .status-dot.online {
-      background: #198754;
-    }
-
-    .status-dot.offline {
-      background: #6c757d;
-    }
-
-    .status-badge {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .status-online {
-      color: #198754;
-    }
-
-    .status-offline {
-      color: #6c757d;
-    }
-
-    .action-buttons {
-      display: flex;
-      gap: 0.4rem;
-    }
-
-    .action-btn {
-      width: 30px;
-      height: 30px;
-      border-radius: 0.3rem;
-      border: none;
-      background: #e9ecef;
-      color: #495057;
-      cursor: pointer;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: var(--transition);
-    }
-
-    .action-btn:hover {
-      background: #0d6efd;
-      color: #fff;
-    }
-
-    .track-map {
-      height: 180px;
-      border-radius: var(--radius-sm);
-      background: linear-gradient(45deg, #f4f6f9, #e9ecef);
-      border: 1px dashed #ced4da;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.9rem;
-      color: #6c757d;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .map-vehicle {
-      position: absolute;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: #0d6efd;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.75rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    }
-
-    .map-vehicle:nth-child(1) { top: 30%; left: 20%; }
-    .map-vehicle:nth-child(2) { top: 50%; left: 60%; }
-    .map-vehicle:nth-child(3) { top: 20%; left: 70%; }
-
-    .notification-item {
-      display: flex;
-      gap: 0.8rem;
-      padding: 0.6rem 0;
-      border-bottom: 1px solid #dee2e6;
-      font-size: 0.9rem;
-      color: #495057;
-    }
-
-    .notification-item:last-child {
-      border-bottom: none;
-    }
-
-    .notification-meta {
-      font-size: 0.75rem;
-      color: #6c757d;
-    }
-
-    /* FORMS & SETTINGS */
-    .form-group-sm {
-      margin-bottom: 0.6rem;
-    }
-
-    .form-group-sm label {
-      font-size: 0.85rem;
-      color: #495057;
-      margin-bottom: 0.2rem;
-    }
-
-    .form-group-sm .form-control {
-      padding: 0.5rem 0.6rem;
-      font-size: 0.85rem;
-    }
-
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 44px;
-      height: 24px;
-      margin-left: 0.5rem;
-    }
-
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: #6c757d;
-      border-radius: 24px;
-      transition: 0.2s;
-    }
-
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
-      background: #fff;
-      border-radius: 50%;
-      transition: 0.2s;
-    }
-
-    input:checked + .slider {
-      background: #0d6efd;
-    }
-
-    input:checked + .slider:before {
-      transform: translateX(20px);
-    }
-
-    .switch-label {
-      display: flex;
-      align-items: center;
-      font-size: 0.9rem;
-      color: #495057;
-    }
-
-    .trip-card {
-      border: 1px solid #dee2e6;
-      border-radius: 0.4rem;
-      padding: 0.8rem;
-      margin-bottom: 0.8rem;
-      background: #ffffff;
-    }
-
-    .trip-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.6rem;
-    }
-
-    .trip-status {
-      font-size: 0.8rem;
-      font-weight: 600;
-      padding: 0.2rem 0.5rem;
-      border-radius: 0.3rem;
-    }
-
-    .trip-status.success {
-      background: #d1ecdb;
-      color: #155724;
-    }
-
-    .trip-status.warning {
-      background: #fff3cd
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResQ | Smart Ambulance Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #ff4d4d;
+            --primary-hover: #e63939;
+            --bg-dark: #0f172a;
+            --sidebar-bg: rgba(30, 41, 59, 0.7);
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent-green: #10b981;
+            --accent-blue: #3b82f6;
+            --accent-yellow: #f59e0b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body {
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- LOGIN PAGE --- */
+        #login-page {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: radial-gradient(circle at center, #1e1b4b, #0f172a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.8s cubic-bezier(0.87, 0, 0.13, 1);
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            padding: 3rem;
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .logo-box { margin-bottom: 2rem; }
+        .logo-box i { font-size: 3rem; color: var(--primary); margin-bottom: 1rem; }
+        .logo-box h1 { font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
+
+        .input-group { margin-bottom: 1.5rem; text-align: left; }
+        .input-group label { display: block; margin-bottom: 0.5rem; color: var(--text-dim); font-size: 0.9rem; }
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: white;
+            outline: none;
+            transition: 0.3s;
+        }
+        .input-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(255, 77, 77, 0.1); }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 1rem;
+        }
+        .btn-login:hover { background: var(--primary-hover); transform: translateY(-2px); }
+
+        .demo-box {
+            margin-top: 2rem;
+            padding: 1rem;
+            border-radius: 12px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px dashed var(--accent-blue);
+            display: none;
+        }
+
+        /* --- DASHBOARD LAYOUT --- */
+        #main-dashboard {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            min-height: 100vh;
+            visibility: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid var(--glass-border);
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+
+        .nav-item {
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            color: var(--text-dim);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        .nav-item.active i { color: var(--primary); }
+
+        /* Content Area */
+        .content { padding: 2rem; overflow-y: auto; }
+
+        /* Glass Cards */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: 0.3s;
+        }
+        .glass-card:hover { border-color: rgba(255, 255, 255, 0.2); }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-val { font-size: 2rem; font-weight: 700; margin-top: 0.5rem; }
+        .stat-label { color: var(--text-dim); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Notifications & Alerts */
+        .alert-banner {
+            background: linear-gradient(90deg, #ff4d4d, #f59e0b);
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 77, 77, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
+        }
+
+        /* Section Visibility */
+        .page-section { display: none; animation: fadeIn 0.5s ease-out; }
+        .page-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Incoming Request Panel */
+        .request-card {
+            border-left: 4px solid var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .timer-bar {
+            height: 4px;
+            background: var(--primary);
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            transition: width 1s linear;
+        }
+
+        /* Tables & Lists */
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th { text-align: left; color: var(--text-dim); padding: 12px; font-weight: 500; border-bottom: 1px solid var(--glass-border); }
+        td { padding: 16px 12px; border-bottom: 1px solid var(--glass-border); }
+        .status-pill { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .pill-available { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
+        .pill-busy { background: rgba(245, 158, 11, 0.2); color: var(--accent-yellow); }
+
+        /* Map Simulation */
+        .map-container {
+            height: 400px;
+            background: url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/0,0,1/800x400?access_token=pk.eyJ1IjoiZGVtbyIsImEiOiJjbDF2YnIyeG0wZzFyM2NwYmR6Z3R6Z3R6In0') center/cover;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .ambulance-marker {
+            position: absolute;
+            color: var(--primary);
+            font-size: 1.5rem;
+            filter: drop-shadow(0 0 10px var(--primary));
+            transition: all 2s linear;
+        }
+
+        /* Buttons */
+        .btn-action { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
+        .btn-accept { background: var(--accent-green); color: white; margin-right: 8px; }
+        .btn-reject { background: rgba(255,255,255,0.1); color: white; }
+
+        /* Loading Overlay */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-dark);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--glass-border);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            #main-dashboard { grid-template-columns: 80px 1fr; }
+            .sidebar span { display: none; }
+            .nav-item { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loader"><div class="spinner"></div></div>
+
+    <section id="login-page">
+        <div class="login-card">
+            <div class="logo-box">
+                <i class="fa-solid fa-truck-medical"></i>
+                <h1>ResQ Admin</h1>
+                <p style="color: var(--text-dim)">Empowering Emergency Logistics</p>
+            </div>
+            <form id="login-form">
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="email" placeholder="name@hospital.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-login">Secure Login</button>
+            </form>
+            <button onclick="showDemo()" style="background:transparent; border:none; color:var(--accent-blue); cursor:pointer; margin-top:1.5rem; font-size:0.85rem;">Show Demo Credentials</button>
+            <div id="demo-box" class="demo-box">
+                <p style="font-size:0.8rem">Email: <b>admin@resq.com</b><br>Password: <b>123456</b></p>
+            </div>
+        </div>
+    </section>
+
+    <main id="main-dashboard">
+        <aside class="sidebar">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:3rem; padding-left:10px;">
+                <i class="fa-solid fa-square-h" style="font-size: 2rem; color: var(--primary);"></i>
+                <span style="font-weight:700; font-size:1.2rem;">ResQ Portal</span>
+            </div>
+            <nav style="flex:1">
+                <a class="nav-item active" onclick="showPage('dashboard', this)"><i class="fa-solid fa-house"></i><span>Dashboard</span></a>
+                <a class="nav-item" onclick="showPage('ambulances', this)"><i class="fa-solid fa-ambulance"></i><span>Ambulances</span></a>
+                <a class="nav-item" onclick="showPage('requests', this)"><i class="fa-solid fa-bell"></i><span>Incoming</span></a>
+                <a class="nav-item" onclick="showPage('tracking', this)"><i class="fa-solid fa-location-crosshairs"></i><span>Live Map</span></a>
+                <a class="nav-item" onclick="showPage('drivers', this)"><i class="fa-solid fa-user-doctor"></i><span>Drivers</span></a>
+                <a class="nav-item" onclick="showPage('analytics', this)"><i class="fa-solid fa-chart-line"></i><span>Analytics</span></a>
+            </nav>
+            <div class="nav-item" style="margin-top:auto" onclick="location.reload()">
+                <i class="fa-solid fa-right-from-bracket"></i><span>Logout</span>
+            </div>
+        </aside>
+
+        <section class="content">
+            <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+                <div>
+                    <h2 id="page-title">General Overview</h2>
+                    <p style="color:var(--text-dim)">Welcome back, Apollo Hospitals Admin</p>
+                </div>
+                <div style="display:flex; gap:1.5rem; align-items:center;">
+                    <div style="position:relative; cursor:pointer;">
+                        <i class="fa-regular fa-bell" style="font-size:1.3rem;"></i>
+                        <span style="position:absolute; top:-5px; right:-5px; background:var(--primary); width:10px; height:10px; border-radius:50%;"></span>
+                    </div>
+                    <div style="width:40px; height:40px; border-radius:12px; background:linear-gradient(45deg, var(--primary), var(--accent-yellow));"></div>
+                </div>
+            </header>
+
+            <div id="dashboard" class="page-section active">
+                <div class="alert-banner">
+                    <div style="display:flex; align-items:center; gap:15px;">
+                        <i class="fa-solid fa-bolt-lightning"></i>
+                        <span><strong>AI Suggestion:</strong> Dispatch Ambulance A-04 for the current trauma request at Jubilee Hills. (ETA: 4m)</span>
+                    </div>
+                    <button class="btn-action btn-accept" style="background:white; color:black;">Auto-Dispatch</button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="glass-card">
+                        <div class="stat-label">Total Rides (Today)</div>
+                        <div class="stat-val">42</div>
+                        <div style="color:var(--accent-green); font-size:0.8rem; margin-top:5px;"><i class="fa-solid fa-caret-up"></i> +12% vs yesterday</div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="stat-label">Avg Response Time</div>
+                        <div class="stat-val">6.4 <small style="font-size:0.9rem; font-weight:400">min</small></div>
+                        <div style="color:var(--accent-green); font-size:0.8rem; margin-top:5px;"><i class="fa-solid fa-caret-down"></i> -1.2m optimization</div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="stat-label">Active Ambulances</div>
+                        <div class="stat-val">18 / 25</div>
+                        <div class="stat-label" style="font-size:0.7rem; margin-top:5px;">7 standby</div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="stat-label">Customer Rating</div>
+                        <div class="stat-val">4.9 / 5</div>
+                        <div style="color:var(--accent-yellow)"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:1.5rem;">
+                    <div class="glass-card">
+                        <h3>Booking Trends</h3>
+                        <canvas id="mainChart" style="margin-top:1.5rem;"></canvas>
+                    </div>
+                    <div class="glass-card">
+                        <h3>Quick Pricing</h3>
+                        <div style="margin-top:1.5rem;">
+                            <div class="input-group">
+                                <label>Base Fare (₹)</label>
+                                <input type="number" value="500">
+                            </div>
+                            <div class="input-group">
+                                <label>Per KM Rate (₹)</label>
+                                <input type="number" value="18">
+                            </div>
+                            <button class="btn-login" style="padding:10px;">Update Rates</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="ambulances" class="page-section">
+                <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem;">
+                    <h3>Fleet Management</h3>
+                    <button class="btn-action btn-accept">+ Add Ambulance</button>
+                </div>
+                <div class="stats-grid" id="fleet-list">
+                    </div>
+            </div>
+
+            <div id="requests" class="page-section">
+                <h3>Live Emergency Requests</h3>
+                <div id="request-container" style="margin-top:1.5rem;">
+                    </div>
+            </div>
+
+            <div id="tracking" class="page-section">
+                <div class="glass-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                        <h3>Active Fleet Tracking</h3>
+                        <span class="status-pill pill-available">● 14 Tracking Live</span>
+                    </div>
+                    <div class="map-container" id="map-ui">
+                        <div class="ambulance-marker" id="amb-1" style="top:20%; left:30%"><i class="fa-solid fa-truck-medical"></i></div>
+                        <div class="ambulance-marker" id="amb-2" style="top:60%; left:70%"><i class="fa-solid fa-truck-medical"></i></div>
+                        <svg width="100%" height="100%" style="position:absolute; pointer-events:none;">
+                            <path d="M 100 100 Q 200 150 300 100" stroke="rgba(255,77,77,0.4)" stroke-width="2" fill="transparent" stroke-dasharray="5,5" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div id="analytics" class="page-section">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+                    <div class="glass-card">
+                        <h3>Response Efficiency</h3>
+                        <canvas id="responseChart"></canvas>
+                    </div>
+                    <div class="glass-card">
+                        <h3>Revenue (Weekly)</h3>
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        // --- AUTH LOGIC ---
+        const loginForm = document.getElementById('login-form');
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+
+            if(email === 'admin@resq.com' && pass === '123456') {
+                document.getElementById('loader').style.display = 'flex';
+                setTimeout(() => {
+                    document.getElementById('login-page').style.transform = 'translateY(-100%)';
+                    document.getElementById('main-dashboard').style.visibility = 'visible';
+                    document.getElementById('loader').style.display = 'none';
+                    initCharts();
+                    initFleet();
+                    simulateRequests();
+                }, 1500);
+            } else {
+                alert('Invalid credentials! Hint: Use the demo button.');
+            }
+        });
+
+        function showDemo() {
+            document.getElementById('demo-box').style.display = 'block';
+        }
+
+        // --- NAVIGATION ---
+        function showPage(pageId, element) {
+            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            element.classList.add('active');
+            document.getElementById('page-title').innerText = pageId.charAt(0).toUpperCase() + pageId.slice(1);
+        }
+
+        // --- FLEET DATA ---
+        const fleet = [
+            { id: 'A-101', type: 'ICU / Ventilator', status: 'Available', driver: 'Suresh Kumar' },
+            { id: 'A-104', type: 'Basic Life Support', status: 'Busy', driver: 'Rahul Raj' },
+            { id: 'A-205', type: 'Oxygen Support', status: 'Available', driver: 'Priya Singh' },
+            { id: 'A-099', type: 'Neonatal Care', status: 'Offline', driver: 'Unassigned' }
+        ];
+
+        function initFleet() {
+            const container = document.getElementById('fleet-list');
+            container.innerHTML = fleet.map(amb => `
+                <div class="glass-card">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+                        <span style="font-weight:700;">${amb.id}</span>
+                        <span class="status-pill ${amb.status === 'Available' ? 'pill-available' : 'pill-busy'}">${amb.status}</span>
+                    </div>
+                    <p style="font-size:0.85rem; color:var(--text-dim);">${amb.type}</p>
+                    <p style="font-size:0.9rem; margin-top:0.5rem;"><i class="fa-solid fa-user-circle"></i> ${amb.driver}</p>
+                    <button class="btn-action btn-reject" style="width:100%; margin-top:1rem; border:1px solid var(--glass-border)">Edit Details</button>
+                </div>
+            `).join('');
+        }
+
+        // --- EMERGENCY REQUESTS ---
+        function simulateRequests() {
+            const container = document.getElementById('request-container');
+            const requests = [
+                { id: 1, loc: 'Gachibowli, Hyderabad', dist: '2.4 km', type: 'Critical - Cardiac' },
+                { id: 2, loc: 'Banjara Hills, Road No 12', dist: '5.1 km', type: 'Normal - Fracture' }
+            ];
+
+            container.innerHTML = requests.map(req => `
+                <div class="glass-card request-card" id="req-${req.id}">
+                    <div style="position:relative; flex:1">
+                        <div style="color:var(--primary); font-weight:700; font-size:0.8rem; text-transform:uppercase;">${req.type}</div>
+                        <h4 style="margin:5px 0;">${req.loc}</h4>
+                        <div style="color:var(--text-dim); font-size:0.85rem;"><i class="fa-solid fa-location-dot"></i> ${req.dist} from hospital</div>
+                        <div class="timer-bar" id="timer-${req.id}"></div>
+                    </div>
+                    <div>
+                        <button class="btn-action btn-accept" onclick="acceptReq(${req.id})">Accept</button>
+                        <button class="btn-action btn-reject" onclick="rejectReq(${req.id})">Reject</button>
+                    </div>
+                </div>
+            `).join('');
+
+            requests.forEach(req => {
+                setTimeout(() => {
+                    const bar = document.getElementById(`timer-${req.id}`);
+                    if(bar) bar.style.width = '0%';
+                    setTimeout(() => {
+                        const el = document.getElementById(`req-${req.id}`);
+                        if(el) {
+                            el.innerHTML = `<div style="color:var(--accent-yellow)">⚠️ Reassigned Automatically to Nearer Hub</div>`;
+                            setTimeout(() => el.remove(), 2000);
+                        }
+                    }, 15000);
+                }, 100);
+            });
+        }
+
+        function acceptReq(id) {
+            const el = document.getElementById(`req-${id}`);
+            el.style.borderColor = 'var(--accent-green)';
+            el.innerHTML = `<div style="color:var(--accent-green); font-weight:600;"><i class="fa-solid fa-check-circle"></i> Request Accepted. Ambulance A-101 Dispatched.</div>`;
+            setTimeout(() => el.remove(), 3000);
+        }
+
+        // --- MAP ANIMATION ---
+        setInterval(() => {
+            const amb1 = document.getElementById('amb-1');
+            const amb2 = document.getElementById('amb-2');
+            if(amb1) {
+                amb1.style.top = Math.random() * 80 + '%';
+                amb1.style.left = Math.random() * 80 + '%';
+            }
+        }, 4000);
+
+        // --- CHARTS ---
+        function initCharts() {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['8am', '10am', '12pm', '2pm', '4pm', '6pm', '8pm'],
+                    datasets: [{
+                        label: 'Bookings',
+                        data: [5, 12, 19, 15, 25, 32, 28],
+                        borderColor: '#ff4d4d',
+                        tension: 0.4,
+                        fill: true,
+                        backgroundColor: 'rgba(255, 77, 77, 0.1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } }
+                }
+            });
+
+            const revCtx = document.getElementById('revenueChart').getContext('2d');
+            new Chart(revCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Revenue',
+                        data: [12000, 19000, 15000, 22000, 30000, 45000, 38000],
+                        backgroundColor: '#3b82f6'
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+        }
+    </script>
+</body>
+</html>
