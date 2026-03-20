@@ -31,6 +31,7 @@
       --radius-sm: 0.3rem;
       --radius-lg: 0.8rem;
       --transition: all 0.2s ease;
+      --border: 1px solid #dee2e6;
     }
 
     * {
@@ -87,7 +88,7 @@
     }
 
     .form-group {
-      margin-bottom: 1.2rem;
+      margin-bottom: 0.8rem;
     }
 
     .form-group label {
@@ -95,12 +96,12 @@
       font-size: 0.9rem;
       font-weight: 500;
       color: #495057;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.3rem;
     }
 
     .form-control {
       width: 100%;
-      padding: 0.75rem;
+      padding: 0.7rem 0.8rem;
       border: 1px solid #ced4da;
       border-radius: var(--radius-sm);
       font-size: 0.95rem;
@@ -115,7 +116,7 @@
 
     .btn {
       display: inline-block;
-      padding: 0.75rem 1.25rem;
+      padding: 0.75rema 1.25rem;
       border: none;
       border-radius: var(--radius-sm);
       font-weight: 600;
@@ -131,6 +132,29 @@
 
     .btn-primary:hover {
       background: #0b5ed7;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: #fff;
+    }
+
+    .btn-sm {
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8rem;
+    }
+
+    .alert {
+      padding: 0.7rem 1rem;
+      border-radius: var(--radius-sm);
+      margin-bottom: 0.8rem;
+      font-size: 0.9rem;
+    }
+
+    .alert-danger {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
     }
 
     /* MAIN LAYOUT */
@@ -188,10 +212,11 @@
     }
 
     .sidebar {
-      width: 240px;
+      width: 260px;
       background: #212529;
       color: #adb5bd;
       padding: 1rem 0;
+      border-right: 1px solid #343a40;
     }
 
     .sidebar-brand {
@@ -240,12 +265,14 @@
     .main-content {
       flex: 1;
       display: flex;
+      overflow: hidden;
     }
 
     .content {
       flex: 1;
       padding: 1.5rem;
       overflow-y: auto;
+      background: #f4f6f9;
     }
 
     .card {
@@ -254,6 +281,7 @@
       box-shadow: var(--shadow-sm);
       padding: 1.2rem;
       margin-bottom: 1.2rem;
+      border: var(--border);
     }
 
     .card-title {
@@ -261,11 +289,19 @@
       font-weight: 600;
       color: #212529;
       margin-bottom: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title small {
+      font-size: 0.85rem;
+      color: #6c757d;
     }
 
     .stats-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 1rem;
       margin-bottom: 1.2rem;
     }
@@ -274,7 +310,7 @@
       background: #ffffff;
       border-radius: var(--radius);
       padding: 0.9rem 1.1rem;
-      border: 1px solid #dee2e6;
+      border: var(--border);
       box-shadow: var(--shadow-sm);
     }
 
@@ -294,10 +330,17 @@
       font-size: 0.8rem;
       color: var(--success);
       margin-top: 0.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .stat-trend i {
+      font-size: 0.7rem;
     }
 
     .chart-container {
-      height: 280px;
+      height: 260px;
       margin-bottom: 1.2rem;
     }
 
@@ -317,12 +360,12 @@
       text-align: left;
       font-weight: 600;
       color: #495057;
-      border-bottom: 1px solid #dee2e6;
+      border-bottom: var(--border);
     }
 
     .table td {
       padding: 0.7rem 0.8rem;
-      border-bottom: 1px solid #dee2e6;
+      border-bottom: var(--border);
     }
 
     .table tr:last-child td {
@@ -357,9 +400,34 @@
       color: #495057;
     }
 
-    .btn-sm {
-      font-size: 0.8rem;
-      padding: 0.3rem 0.6rem;
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 0.4rem;
+    }
+
+    .status-dot.online {
+      background: #198754;
+    }
+
+    .status-dot.offline {
+      background: #6c757d;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .status-online {
+      color: #198754;
+    }
+
+    .status-offline {
+      color: #6c757d;
     }
 
     .action-buttons {
@@ -387,39 +455,37 @@
       color: #fff;
     }
 
-    .status-dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      margin-right: 0.4rem;
-    }
-
-    .status-dot.online {
-      background: #198754;
-    }
-
-    .status-dot.offline {
-      background: #6c757d;
-    }
-
-    .status-badge {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
     .track-map {
-      height: 150px;
+      height: 180px;
       border-radius: var(--radius-sm);
-      background: #f4f6f9;
+      background: linear-gradient(45deg, #f4f6f9, #e9ecef);
       border: 1px dashed #ced4da;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 0.9rem;
       color: #6c757d;
+      position: relative;
+      overflow: hidden;
     }
+
+    .map-vehicle {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #0d6efd;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+
+    .map-vehicle:nth-child(1) { top: 30%; left: 20%; }
+    .map-vehicle:nth-child(2) { top: 50%; left: 60%; }
+    .map-vehicle:nth-child(3) { top: 20%; left: 70%; }
 
     .notification-item {
       display: flex;
@@ -439,129 +505,101 @@
       color: #6c757d;
     }
 
-    /* Responsive */
-    @media (max-width: 1024px) {
-      .stats-row {
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      }
+    /* FORMS & SETTINGS */
+    .form-group-sm {
+      margin-bottom: 0.6rem;
     }
 
-    @media (max-width: 768px) {
-      .login-container {
-        padding: 0.5rem;
-      }
-
-      .topbar {
-        padding: 0.7rem 1rem;
-      }
-
-      .topbar-right {
-        gap: 0.6rem;
-      }
-
-      .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        z-index: 1000;
-        transform: translateX(-100%);
-        transition: transform 0.3s;
-      }
-
-      .sidebar.open {
-        transform: translateX(0);
-      }
-
-      .main-content {
-        flex-direction: column;
-      }
-
-      .sidebar-toggle {
-        display: block;
-        margin-right: 0.8rem;
-      }
-
-      .app {
-        overflow: hidden;
-      }
+    .form-group-sm label {
+      font-size: 0.85rem;
+      color: #495057;
+      margin-bottom: 0.2rem;
     }
-  </style>
-</head>
-<body>
 
-  <!-- LOGIN SCREEN -->
-  <div class="login-container">
-    <div class="login-box">
-      <div class="login-header">
-        <h2>ResQ – Hospital Admin Portal</h2>
-      </div>
-      <div class="login-body">
-        <div class="form-group">
-          <label for="hospitalId">Hospital ID</label>
-          <input type="text" id="hospitalId" class="form-control" placeholder="Hospital ID" />
-        </div>
-        <div class="form-group">
-          <label for="loginEmail">Email</label>
-          <input type="email" id="loginEmail" class="form-control" placeholder="you@example.com" />
-        </div>
-        <div class="form-group">
-          <label for="loginPassword">Password</label>
-          <input type="password" id="loginPassword" class="form-control" placeholder="Password" />
-        </div>
-        <button id="loginBtn" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
-          Sign In
-        </button>
-      </div>
-    </div>
-  </div>
+    .form-group-sm .form-control {
+      padding: 0.5rem 0.6rem;
+      font-size: 0.85rem;
+    }
 
-  <!-- MAIN APP -->
-  <div class="app">
-    <div class="topbar">
-      <div class="topbar-left">
-        <button class="sidebar-toggle" id="sidebarToggle">
-          <i class="fas fa-bars"></i>
-        </button>
-        <div class="logo">ResQ Admin</div>
-      </div>
-      <div class="topbar-right">
-        <div class="user-info">
-          <div class="avatar">H</div>
-          <span id="hospitalName">Apollo Hospital</span>
-        </div>
-      </div>
-    </div>
-    <div class="main-content">
-      <aside class="sidebar">
-        <div class="sidebar-brand">ResQ</div>
-        <ul class="sidebar-menu">
-          <li><a id="nav-dashboard" class="active" href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-          <li><a id="nav-bookings" href="#"><i class="fas fa-book-medical"></i> Active Bookings</a></li>
-          <li><a id="nav-ambulances" href="#"><i class="fas fa-ambulance"></i> Ambulances</a></li>
-          <li><a id="nav-drivers" href="#"><i class="fas fa-user-md"></i> Drivers</a></li>
-          <li><a id="nav-settings" href="#"><i class="fas fa-cog"></i> Settings</a></li>
-        </ul>
-      </aside>
-      <main class="content">
-        <div id="page-dashboard">
-          <div class="stats-row">
-            <div class="stat-card">
-              <div class="stat-label">Active Bookings</div>
-              <div class="stat-value">12</div>
-              <div class="stat-trend">+2 today</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">Ambulances Online</div>
-              <div class="stat-value">8 / 10</div>
-              <div class="stat-trend">+1 from昨天</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">Avg. Response Time</div>
-              <div class="stat-value">7.3 min</div>
-              <div class="stat-trend">-0.5 min</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">Completed Today</div>
-              <div class="stat-value">24</div>
-              <div class="stat
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      margin-left: 0.5rem;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #6c757d;
+      border-radius: 24px;
+      transition: 0.2s;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: 0.2s;
+    }
+
+    input:checked + .slider {
+      background: #0d6efd;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
+    .switch-label {
+      display: flex;
+      align-items: center;
+      font-size: 0.9rem;
+      color: #495057;
+    }
+
+    .trip-card {
+      border: 1px solid #dee2e6;
+      border-radius: 0.4rem;
+      padding: 0.8rem;
+      margin-bottom: 0.8rem;
+      background: #ffffff;
+    }
+
+    .trip-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.6rem;
+    }
+
+    .trip-status {
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.3rem;
+    }
+
+    .trip-status.success {
+      background: #d1ecdb;
+      color: #155724;
+    }
+
+    .trip-status.warning {
+      background: #fff3cd
